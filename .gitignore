@@ -1,0 +1,44 @@
+# Secrets (Vorlage: config/secrets.example.h)
+config/secrets.h
+
+# Build-Ausgabe / Abhängigkeiten
+.pio/
+node_modules/
+web/dist/
+
+# Firmware-Abbilder und Sicherungen (nur lokal)
+backups/
+*.bin
+*.elf
+*.map
+
+# Python
+.venv/
+venv/
+env/
+__pycache__/
+*.py[cod]
+.pytest_cache/
+
+# Editor: nur die Erweiterungsempfehlungen werden geteilt
+.vscode/*
+!.vscode/extensions.json
+.idea/
+*.swp
+*.swo
+*~
+.*.un~
+
+# Betriebssystem
+.DS_Store
+Thumbs.db
+
+# Lokale Arbeitskopien
+*.bak
+*.orig
+*.rej
+*.log
+*.pre_matter
+
+# Claude Code (lokale Arbeitskopien der Agenten)
+.claude/

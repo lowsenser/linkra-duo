@@ -1,0 +1,2202 @@
+[
+  {
+    "symbol": "abmt",
+    "name": "\"Amazon Basics Meat Thermometer\"",
+    "modulation": "OOK_PULSE_PCM",
+    "disabled": "0",
+    "short_width_us": "550",
+    "file": "lib/rtl_433_ESP_433/src/rtl_433/devices/abmt.c"
+  },
+  {
+    "symbol": "acurite_rain_896",
+    "name": "\"Acurite 896 Rain Gauge\"",
+    "modulation": "OOK_PULSE_PPM",
+    "disabled": "0",
+    "short_width_us": "1000",
+    "file": "lib/rtl_433_ESP_433/src/rtl_433/devices/acurite.c"
+  },
+  {
+    "symbol": "acurite_th",
+    "name": "\"Acurite 609TXC Temperature and Humidity Sensor\"",
+    "modulation": "OOK_PULSE_PPM",
+    "disabled": "0",
+    "short_width_us": "1000",
+    "file": "lib/rtl_433_ESP_433/src/rtl_433/devices/acurite.c"
+  },
+  {
+    "symbol": "acurite_txr",
+    "name": "\"Acurite 592TXR Temp/Humidity",
+    "modulation": "OOK_PULSE_PWM",
+    "disabled": "0",
+    "short_width_us": "220",
+    "file": "lib/rtl_433_ESP_433/src/rtl_433/devices/acurite.c"
+  },
+  {
+    "symbol": "acurite_986",
+    "name": "\"Acurite 986 Refrigerator / Freezer Thermometer\"",
+    "modulation": "OOK_PULSE_PPM",
+    "disabled": "0",
+    "short_width_us": "520",
+    "file": "lib/rtl_433_ESP_433/src/rtl_433/devices/acurite.c"
+  },
+  {
+    "symbol": "acurite_606",
+    "name": "\"Acurite 606TX Temperature Sensor\"",
+    "modulation": "OOK_PULSE_PPM",
+    "disabled": "0",
+    "short_width_us": "2000",
+    "file": "lib/rtl_433_ESP_433/src/rtl_433/devices/acurite.c"
+  },
+  {
+    "symbol": "acurite_00275rm",
+    "name": "\"Acurite 00275rm",
+    "modulation": "OOK_PULSE_PWM",
+    "disabled": "0",
+    "short_width_us": "232",
+    "file": "lib/rtl_433_ESP_433/src/rtl_433/devices/acurite.c"
+  },
+  {
+    "symbol": "acurite_590tx",
+    "name": "\"Acurite 590TX Temperature with optional Humidity\"",
+    "modulation": "OOK_PULSE_PPM",
+    "disabled": "0",
+    "short_width_us": "500",
+    "file": "lib/rtl_433_ESP_433/src/rtl_433/devices/acurite.c"
+  },
+  {
+    "symbol": "acurite_01185m",
+    "name": "\"Acurite Grill/Meat Thermometer 01185M\"",
+    "modulation": "OOK_PULSE_PWM",
+    "disabled": "0",
+    "short_width_us": "840",
+    "file": "lib/rtl_433_ESP_433/src/rtl_433/devices/acurite_01185m.c"
+  },
+  {
+    "symbol": "akhan_100F14",
+    "name": "\"Akhan 100F14 remote keyless entry\"",
+    "modulation": "OOK_PULSE_PWM",
+    "disabled": "1",
+    "short_width_us": "316",
+    "file": "lib/rtl_433_ESP_433/src/rtl_433/devices/akhan_100F14.c"
+  },
+  {
+    "symbol": "alectov1",
+    "name": "\"AlectoV1 Weather Sensor (Alecto WS3500 WS4500 Ventus W155/W044 Oregon)\"",
+    "modulation": "OOK_PULSE_PPM",
+    "disabled": "0",
+    "short_width_us": "2000",
+    "file": "lib/rtl_433_ESP_433/src/rtl_433/devices/alecto.c"
+  },
+  {
+    "symbol": "ambient_weather",
+    "name": "\"Ambient Weather F007TH",
+    "modulation": "OOK_PULSE_MANCHESTER_ZEROBIT",
+    "disabled": "0",
+    "short_width_us": "500",
+    "file": "lib/rtl_433_ESP_433/src/rtl_433/devices/ambient_weather.c"
+  },
+  {
+    "symbol": "ambientweather_tx8300",
+    "name": "\"Ambient Weather TX-8300 Temperature/Humidity Sensor\"",
+    "modulation": "OOK_PULSE_PPM",
+    "disabled": "0",
+    "short_width_us": "2000",
+    "file": "lib/rtl_433_ESP_433/src/rtl_433/devices/ambientweather_tx8300.c"
+  },
+  {
+    "symbol": "atech_ws308",
+    "name": "\"Atech-WS308 temperature sensor\"",
+    "modulation": "OOK_PULSE_RZ",
+    "disabled": "0",
+    "short_width_us": "1600",
+    "file": "lib/rtl_433_ESP_433/src/rtl_433/devices/atech_ws308.c"
+  },
+  {
+    "symbol": "auriol_4ld5661",
+    "name": "\"Auriol 4-LD5661/4-LD5972/4-LD6313 temperature/rain sensors\"",
+    "modulation": "OOK_PULSE_PPM",
+    "disabled": "1",
+    "short_width_us": "1000",
+    "file": "lib/rtl_433_ESP_433/src/rtl_433/devices/auriol_4ld5661.c"
+  },
+  {
+    "symbol": "auriol_aft77b2",
+    "name": "\"Auriol AFT 77 B2 temperature sensor\"",
+    "modulation": "OOK_PULSE_PPM",
+    "disabled": "0",
+    "short_width_us": "500",
+    "file": "lib/rtl_433_ESP_433/src/rtl_433/devices/auriol_aft77b2.c"
+  },
+  {
+    "symbol": "auriol_afw2a1",
+    "name": "\"Auriol AFW2A1 temperature/humidity sensor\"",
+    "modulation": "OOK_PULSE_PPM",
+    "disabled": "0",
+    "short_width_us": "576",
+    "file": "lib/rtl_433_ESP_433/src/rtl_433/devices/auriol_afw2a1.c"
+  },
+  {
+    "symbol": "auriol_ahfl",
+    "name": "\"Auriol AHFL temperature/humidity sensor\"",
+    "modulation": "OOK_PULSE_PPM",
+    "disabled": "0",
+    "short_width_us": "2100",
+    "file": "lib/rtl_433_ESP_433/src/rtl_433/devices/auriol_ahfl.c"
+  },
+  {
+    "symbol": "auriol_hg02832",
+    "name": "\"Auriol HG02832",
+    "modulation": "OOK_PULSE_PWM",
+    "disabled": "0",
+    "short_width_us": "252",
+    "file": "lib/rtl_433_ESP_433/src/rtl_433/devices/auriol_hg02832.c"
+  },
+  {
+    "symbol": "baldr_rain",
+    "name": "\"Baldr / RainPoint rain gauge.\"",
+    "modulation": "OOK_PULSE_PPM",
+    "disabled": "1",
+    "short_width_us": "1000",
+    "file": "lib/rtl_433_ESP_433/src/rtl_433/devices/baldr_rain.c"
+  },
+  {
+    "symbol": "blyss",
+    "name": "\"Blyss DC5-UK-WH\"",
+    "modulation": "OOK_PULSE_PWM",
+    "disabled": "0",
+    "short_width_us": "500",
+    "file": "lib/rtl_433_ESP_433/src/rtl_433/devices/blyss.c"
+  },
+  {
+    "symbol": "brennenstuhl_rcs_2044",
+    "name": "\"Brennenstuhl RCS 2044\"",
+    "modulation": "OOK_PULSE_PWM",
+    "disabled": "1",
+    "short_width_us": "320",
+    "file": "lib/rtl_433_ESP_433/src/rtl_433/devices/brennenstuhl_rcs_2044.c"
+  },
+  {
+    "symbol": "bresser_3ch",
+    "name": "\"Bresser Thermo-/Hygro-Sensor 3CH\"",
+    "modulation": "OOK_PULSE_PWM",
+    "disabled": "0",
+    "short_width_us": "250",
+    "file": "lib/rtl_433_ESP_433/src/rtl_433/devices/bresser_3ch.c"
+  },
+  {
+    "symbol": "bresser_st1005h",
+    "name": "\"Bresser Thermo-/Hygro-Sensor Explore Scientific ST1005H\"",
+    "modulation": "OOK_PULSE_PPM",
+    "disabled": "0",
+    "short_width_us": "2500",
+    "file": "lib/rtl_433_ESP_433/src/rtl_433/devices/bresser_st1005h.c"
+  },
+  {
+    "symbol": "bt_rain",
+    "unresolved": true
+  },
+  {
+    "symbol": "burnhardbbq",
+    "name": "\"Burnhard BBQ thermometer\"",
+    "modulation": "OOK_PULSE_PWM",
+    "disabled": "0",
+    "short_width_us": "240",
+    "file": "lib/rtl_433_ESP_433/src/rtl_433/devices/burnhardbbq.c"
+  },
+  {
+    "symbol": "calibeur_RF104",
+    "name": "\"Calibeur RF-104 Sensor\"",
+    "modulation": "OOK_PULSE_PWM",
+    "disabled": "0",
+    "short_width_us": "760",
+    "file": "lib/rtl_433_ESP_433/src/rtl_433/devices/calibeur.c"
+  },
+  {
+    "symbol": "cardin",
+    "name": "\"Cardin S466-TX2\"",
+    "modulation": "OOK_PULSE_PWM",
+    "disabled": "0",
+    "short_width_us": "730",
+    "file": "lib/rtl_433_ESP_433/src/rtl_433/devices/cardin.c"
+  },
+  {
+    "symbol": "celsia_czc1",
+    "name": "\"Celsia CZC1 Thermostat\"",
+    "modulation": "OOK_PULSE_PCM",
+    "disabled": "0",
+    "short_width_us": "1220",
+    "file": "lib/rtl_433_ESP_433/src/rtl_433/devices/celsia_czc1.c"
+  },
+  {
+    "symbol": "chuango",
+    "name": "\"Chuango Security Technology\"",
+    "modulation": "OOK_PULSE_PWM",
+    "disabled": "0",
+    "short_width_us": "568",
+    "file": "lib/rtl_433_ESP_433/src/rtl_433/devices/chuango.c"
+  },
+  {
+    "symbol": "cmr113",
+    "name": "\"Clipsal CMR113 Cent-a-meter power meter\"",
+    "modulation": "OOK_PULSE_PIWM_DC",
+    "disabled": "0",
+    "short_width_us": "480",
+    "file": "lib/rtl_433_ESP_433/src/rtl_433/devices/cmr113.c"
+  },
+  {
+    "symbol": "companion_wtr001",
+    "name": "\"Companion WTR001 Temperature Sensor\"",
+    "modulation": "OOK_PULSE_PWM",
+    "disabled": "0",
+    "short_width_us": "732",
+    "file": "lib/rtl_433_ESP_433/src/rtl_433/devices/companion_wtr001.c"
+  },
+  {
+    "symbol": "cotech_36_7959",
+    "name": "\"Cotech 36-7959",
+    "modulation": "OOK_PULSE_MANCHESTER_ZEROBIT",
+    "disabled": "0",
+    "short_width_us": "500",
+    "file": "lib/rtl_433_ESP_433/src/rtl_433/devices/cotech_36_7959.c"
+  },
+  {
+    "symbol": "digitech_xc0324",
+    "name": "\"Digitech XC-0324 / AmbientWeather FT005TH temp/hum sensor\"",
+    "modulation": "OOK_PULSE_PPM",
+    "disabled": "0",
+    "short_width_us": "520",
+    "file": "lib/rtl_433_ESP_433/src/rtl_433/devices/digitech_xc0324.c"
+  },
+  {
+    "symbol": "dish_remote_6_3",
+    "name": "\"Dish remote 6.3\"",
+    "modulation": "OOK_PULSE_PPM",
+    "disabled": "1",
+    "short_width_us": "1692",
+    "file": "lib/rtl_433_ESP_433/src/rtl_433/devices/dish_remote_6_3.c"
+  },
+  {
+    "symbol": "dsc_security",
+    "name": "\"DSC Security Contact\"",
+    "modulation": "OOK_PULSE_RZ",
+    "disabled": "0",
+    "short_width_us": "250",
+    "file": "lib/rtl_433_ESP_433/src/rtl_433/devices/dsc.c"
+  },
+  {
+    "symbol": "dsc_security_ws4945",
+    "name": "\"DSC Security Contact (WS4945)\"",
+    "modulation": "OOK_PULSE_RZ",
+    "disabled": "0",
+    "short_width_us": "536",
+    "file": "lib/rtl_433_ESP_433/src/rtl_433/devices/dsc.c"
+  },
+  {
+    "symbol": "ecowitt",
+    "name": "\"Ecowitt Wireless Outdoor Thermometer WH53/WH0280/WH0281A\"",
+    "modulation": "OOK_PULSE_PWM",
+    "disabled": "0",
+    "short_width_us": "500",
+    "file": "lib/rtl_433_ESP_433/src/rtl_433/devices/ecowitt.c"
+  },
+  {
+    "symbol": "eurochron_efth800",
+    "name": "\"Eurochron EFTH-800 temperature and humidity sensor\"",
+    "modulation": "OOK_PULSE_PWM",
+    "disabled": "0",
+    "short_width_us": "250",
+    "file": "lib/rtl_433_ESP_433/src/rtl_433/devices/efth800.c"
+  },
+  {
+    "symbol": "elro_db286a",
+    "name": "\"Elro DB286A Doorbell\"",
+    "modulation": "OOK_PULSE_PWM",
+    "disabled": "1",
+    "short_width_us": "456",
+    "file": "lib/rtl_433_ESP_433/src/rtl_433/devices/elro_db286a.c"
+  },
+  {
+    "symbol": "elv_em1000",
+    "name": "\"ELV EM 1000\"",
+    "modulation": "OOK_PULSE_PPM",
+    "disabled": "0",
+    "short_width_us": "500",
+    "file": "lib/rtl_433_ESP_433/src/rtl_433/devices/elv.c"
+  },
+  {
+    "symbol": "elv_ws2000",
+    "name": "\"ELV WS 2000\"",
+    "modulation": "OOK_PULSE_PWM",
+    "disabled": "0",
+    "short_width_us": "366",
+    "file": "lib/rtl_433_ESP_433/src/rtl_433/devices/elv.c"
+  },
+  {
+    "symbol": "emos_e6016",
+    "name": "\"EMOS E6016 weatherstation with DCF77\"",
+    "modulation": "OOK_PULSE_PWM",
+    "disabled": "0",
+    "short_width_us": "280",
+    "file": "lib/rtl_433_ESP_433/src/rtl_433/devices/emos_e6016.c"
+  },
+  {
+    "symbol": "emos_e6016_rain",
+    "name": "\"EMOS E6016 rain gauge\"",
+    "modulation": "OOK_PULSE_PWM",
+    "disabled": "0",
+    "short_width_us": "300",
+    "file": "lib/rtl_433_ESP_433/src/rtl_433/devices/emos_e6016_rain.c"
+  },
+  {
+    "symbol": "enocean_erp1",
+    "name": "\"EnOcean ERP1\"",
+    "modulation": "OOK_PULSE_PCM",
+    "disabled": "1",
+    "short_width_us": "8",
+    "file": "lib/rtl_433_ESP_433/src/rtl_433/devices/enocean_erp1.c"
+  },
+  {
+    "symbol": "ert_idm",
+    "name": "\"ERT Interval Data Message (IDM)\"",
+    "modulation": "OOK_PULSE_MANCHESTER_ZEROBIT",
+    "disabled": "0",
+    "short_width_us": "30",
+    "file": "lib/rtl_433_ESP_433/src/rtl_433/devices/ert_idm.c"
+  },
+  {
+    "symbol": "ert_netidm",
+    "name": "\"ERT Interval Data Message (IDM) for Net Meters\"",
+    "modulation": "OOK_PULSE_MANCHESTER_ZEROBIT",
+    "disabled": "0",
+    "short_width_us": "30",
+    "file": "lib/rtl_433_ESP_433/src/rtl_433/devices/ert_idm.c"
+  },
+  {
+    "symbol": "ert_scm",
+    "name": "\"ERT Standard Consumption Message (SCM)\"",
+    "modulation": "OOK_PULSE_MANCHESTER_ZEROBIT",
+    "disabled": "0",
+    "short_width_us": "30",
+    "file": "lib/rtl_433_ESP_433/src/rtl_433/devices/ert_scm.c"
+  },
+  {
+    "symbol": "esa_energy",
+    "name": "\"ESA1000 / ESA2000 Energy Monitor\"",
+    "modulation": "OOK_PULSE_MANCHESTER_ZEROBIT",
+    "disabled": "0",
+    "short_width_us": "260",
+    "file": "lib/rtl_433_ESP_433/src/rtl_433/devices/esa.c"
+  },
+  {
+    "symbol": "esperanza_ews",
+    "name": "\"Esperanza EWS\"",
+    "modulation": "OOK_PULSE_PPM",
+    "disabled": "0",
+    "short_width_us": "2000",
+    "file": "lib/rtl_433_ESP_433/src/rtl_433/devices/esperanza_ews.c"
+  },
+  {
+    "symbol": "eurochron",
+    "name": "\"Eurochron temperature and humidity sensor\"",
+    "modulation": "OOK_PULSE_PPM",
+    "disabled": "1",
+    "short_width_us": "1016",
+    "file": "lib/rtl_433_ESP_433/src/rtl_433/devices/eurochron.c"
+  },
+  {
+    "symbol": "fineoffset_WH2",
+    "name": "\"Fine Offset Electronics",
+    "modulation": "OOK_PULSE_PWM",
+    "disabled": "0",
+    "short_width_us": "500",
+    "file": "lib/rtl_433_ESP_433/src/rtl_433/devices/fineoffset.c"
+  },
+  {
+    "symbol": "fineoffset_WH0530",
+    "name": "\"Fine Offset Electronics",
+    "modulation": "OOK_PULSE_PWM",
+    "disabled": "0",
+    "short_width_us": "504",
+    "file": "lib/rtl_433_ESP_433/src/rtl_433/devices/fineoffset.c"
+  },
+  {
+    "symbol": "fineoffset_wh1050",
+    "name": "\"Fine Offset WH1050 Weather Station\"",
+    "modulation": "OOK_PULSE_PWM",
+    "disabled": "0",
+    "short_width_us": "544",
+    "file": "lib/rtl_433_ESP_433/src/rtl_433/devices/fineoffset_wh1050.c"
+  },
+  {
+    "symbol": "fineoffset_wh1080",
+    "name": "\"Fine Offset Electronics WH1080/WH3080 Weather Station\"",
+    "modulation": "OOK_PULSE_PWM",
+    "disabled": "0",
+    "short_width_us": "544",
+    "file": "lib/rtl_433_ESP_433/src/rtl_433/devices/fineoffset_wh1080.c"
+  },
+  {
+    "symbol": "fordremote",
+    "name": "\"Ford Car Key\"",
+    "modulation": "OOK_PULSE_DMC",
+    "disabled": "0",
+    "short_width_us": "250",
+    "file": "lib/rtl_433_ESP_433/src/rtl_433/devices/fordremote.c"
+  },
+  {
+    "symbol": "fs20",
+    "name": "\"FS20 / FHT\"",
+    "modulation": "OOK_PULSE_PWM",
+    "disabled": "0",
+    "short_width_us": "400",
+    "file": "lib/rtl_433_ESP_433/src/rtl_433/devices/fs20.c"
+  },
+  {
+    "symbol": "ft004b",
+    "name": "\"FT-004-B Temperature Sensor\"",
+    "modulation": "OOK_PULSE_PPM",
+    "disabled": "0",
+    "short_width_us": "1956",
+    "file": "lib/rtl_433_ESP_433/src/rtl_433/devices/ft004b.c"
+  },
+  {
+    "symbol": "funkbus_remote",
+    "name": "\"Funkbus / Instafunk (Berker",
+    "modulation": "OOK_PULSE_DMC",
+    "disabled": "0",
+    "short_width_us": "500",
+    "file": "lib/rtl_433_ESP_433/src/rtl_433/devices/funkbus.c"
+  },
+  {
+    "symbol": "gasmate_ba1008",
+    "name": "\"Gasmate BA1008 meat thermometer\"",
+    "modulation": "OOK_PULSE_PPM",
+    "disabled": "0",
+    "short_width_us": "536",
+    "file": "lib/rtl_433_ESP_433/src/rtl_433/devices/gasmate_ba1008.c"
+  },
+  {
+    "symbol": "geevon",
+    "name": "\"Geevon TX16-3 outdoor sensor\"",
+    "modulation": "OOK_PULSE_PWM",
+    "disabled": "0",
+    "short_width_us": "250",
+    "file": "lib/rtl_433_ESP_433/src/rtl_433/devices/geevon.c"
+  },
+  {
+    "symbol": "generic_motion",
+    "name": "\"Generic wireless motion sensor\"",
+    "modulation": "OOK_PULSE_PWM",
+    "disabled": "0",
+    "short_width_us": "888",
+    "file": "lib/rtl_433_ESP_433/src/rtl_433/devices/generic_motion.c"
+  },
+  {
+    "symbol": "generic_remote",
+    "name": "\"Generic Remote SC226x EV1527\"",
+    "modulation": "OOK_PULSE_PWM",
+    "disabled": "0",
+    "short_width_us": "464",
+    "file": "lib/rtl_433_ESP_433/src/rtl_433/devices/generic_remote.c"
+  },
+  {
+    "symbol": "generic_temperature_sensor",
+    "name": "\"Generic temperature sensor 1\"",
+    "modulation": "OOK_PULSE_PPM",
+    "disabled": "0",
+    "short_width_us": "2000",
+    "file": "lib/rtl_433_ESP_433/src/rtl_433/devices/generic_temperature_sensor.c"
+  },
+  {
+    "symbol": "govee",
+    "name": "\"Govee Water Leak Detector H5054",
+    "modulation": "OOK_PULSE_PWM",
+    "disabled": "0",
+    "short_width_us": "440",
+    "file": "lib/rtl_433_ESP_433/src/rtl_433/devices/govee.c"
+  },
+  {
+    "symbol": "govee_h5054",
+    "name": "\"Govee Water Leak Detector H5054\"",
+    "modulation": "OOK_PULSE_PWM",
+    "disabled": "0",
+    "short_width_us": "440",
+    "file": "lib/rtl_433_ESP_433/src/rtl_433/devices/govee.c"
+  },
+  {
+    "symbol": "gt_tmbbq05",
+    "name": "\"Globaltronics QUIGG GT-TMBBQ-05\"",
+    "modulation": "OOK_PULSE_PPM",
+    "disabled": "0",
+    "short_width_us": "2000",
+    "file": "lib/rtl_433_ESP_433/src/rtl_433/devices/gt_tmbbq05.c"
+  },
+  {
+    "symbol": "gt_wt_02",
+    "name": "\"Globaltronics GT-WT-02 Sensor\"",
+    "modulation": "OOK_PULSE_PPM",
+    "disabled": "0",
+    "short_width_us": "2500",
+    "file": "lib/rtl_433_ESP_433/src/rtl_433/devices/gt_wt_02.c"
+  },
+  {
+    "symbol": "gt_wt_03",
+    "name": "\"Globaltronics GT-WT-03 Sensor\"",
+    "modulation": "OOK_PULSE_PWM",
+    "disabled": "0",
+    "short_width_us": "256",
+    "file": "lib/rtl_433_ESP_433/src/rtl_433/devices/gt_wt_03.c"
+  },
+  {
+    "symbol": "hcs200",
+    "name": "\"Microchip HCS200/HCS300 KeeLoq Hopping Encoder based remotes\"",
+    "modulation": "OOK_PULSE_PWM",
+    "disabled": "0",
+    "short_width_us": "370",
+    "file": "lib/rtl_433_ESP_433/src/rtl_433/devices/hcs200.c"
+  },
+  {
+    "symbol": "hideki_ts04",
+    "name": "\"HIDEKI TS04 Temperature",
+    "modulation": "OOK_PULSE_DMC",
+    "disabled": "0",
+    "short_width_us": "520",
+    "file": "lib/rtl_433_ESP_433/src/rtl_433/devices/hideki.c"
+  },
+  {
+    "symbol": "homelead_hg9901",
+    "name": "\"Homelead HG9901 (Geevon",
+    "modulation": "OOK_PULSE_PWM",
+    "disabled": "0",
+    "short_width_us": "432",
+    "file": "lib/rtl_433_ESP_433/src/rtl_433/devices/homelead_hg9901.c"
+  },
+  {
+    "symbol": "honeywell",
+    "name": "\"Honeywell Door/Window Sensor",
+    "modulation": "OOK_PULSE_MANCHESTER_ZEROBIT",
+    "disabled": "0",
+    "short_width_us": "156",
+    "file": "lib/rtl_433_ESP_433/src/rtl_433/devices/honeywell.c"
+  },
+  {
+    "symbol": "honeywell_wdb",
+    "name": "\"Honeywell ActivLink",
+    "modulation": "OOK_PULSE_PWM",
+    "disabled": "0",
+    "short_width_us": "175",
+    "file": "lib/rtl_433_ESP_433/src/rtl_433/devices/honeywell_wdb.c"
+  },
+  {
+    "symbol": "ht680",
+    "name": "\"HT680 Remote control\"",
+    "modulation": "OOK_PULSE_PWM",
+    "disabled": "0",
+    "short_width_us": "200",
+    "file": "lib/rtl_433_ESP_433/src/rtl_433/devices/ht680.c"
+  },
+  {
+    "symbol": "ibis_beacon",
+    "name": "\"IBIS beacon\"",
+    "modulation": "OOK_PULSE_MANCHESTER_ZEROBIT",
+    "disabled": "0",
+    "short_width_us": "30",
+    "file": "lib/rtl_433_ESP_433/src/rtl_433/devices/ibis_beacon.c"
+  },
+  {
+    "symbol": "infactory",
+    "name": "\"inFactory",
+    "modulation": "OOK_PULSE_PPM",
+    "disabled": "0",
+    "short_width_us": "2000",
+    "file": "lib/rtl_433_ESP_433/src/rtl_433/devices/infactory.c"
+  },
+  {
+    "symbol": "kw9015b",
+    "name": "\"Inovalley kw9015b",
+    "modulation": "OOK_PULSE_PPM",
+    "disabled": "1",
+    "short_width_us": "2000",
+    "file": "lib/rtl_433_ESP_433/src/rtl_433/devices/inovalley-kw9015b.c"
+  },
+  {
+    "symbol": "interlogix",
+    "name": "\"Interlogix GE UTC Security Devices\"",
+    "modulation": "OOK_PULSE_PPM",
+    "disabled": "0",
+    "short_width_us": "122",
+    "file": "lib/rtl_433_ESP_433/src/rtl_433/devices/interlogix.c"
+  },
+  {
+    "symbol": "intertechno",
+    "name": "\"Intertechno 433\"",
+    "modulation": "OOK_PULSE_PPM",
+    "disabled": "1",
+    "short_width_us": "330",
+    "file": "lib/rtl_433_ESP_433/src/rtl_433/devices/intertechno.c"
+  },
+  {
+    "symbol": "jasco",
+    "name": "\"Jasco/GE Choice Alert Security Devices\"",
+    "modulation": "OOK_PULSE_PCM",
+    "disabled": "0",
+    "short_width_us": "250",
+    "file": "lib/rtl_433_ESP_433/src/rtl_433/devices/jasco.c"
+  },
+  {
+    "symbol": "kedsum",
+    "name": "\"Kedsum Temperature & Humidity Sensor",
+    "modulation": "OOK_PULSE_PPM",
+    "disabled": "0",
+    "short_width_us": "2000",
+    "file": "lib/rtl_433_ESP_433/src/rtl_433/devices/kedsum.c"
+  },
+  {
+    "symbol": "kerui",
+    "name": "\"Kerui PIR / Contact Sensor\"",
+    "modulation": "OOK_PULSE_PWM",
+    "disabled": "0",
+    "short_width_us": "420",
+    "file": "lib/rtl_433_ESP_433/src/rtl_433/devices/kerui.c"
+  },
+  {
+    "symbol": "klimalogg",
+    "name": "\"Klimalogg\"",
+    "modulation": "OOK_PULSE_NRZS",
+    "disabled": "0",
+    "short_width_us": "26",
+    "file": "lib/rtl_433_ESP_433/src/rtl_433/devices/klimalogg.c"
+  },
+  {
+    "symbol": "lacrossetx",
+    "name": "\"LaCrosse TX Temperature / Humidity Sensor\"",
+    "modulation": "OOK_PULSE_PWM",
+    "disabled": "0",
+    "short_width_us": "550",
+    "file": "lib/rtl_433_ESP_433/src/rtl_433/devices/lacrosse.c"
+  },
+  {
+    "symbol": "lacrosse_tx141x",
+    "name": "\"LaCrosse TX141-Bv2",
+    "modulation": "OOK_PULSE_PWM",
+    "disabled": "0",
+    "short_width_us": "208",
+    "file": "lib/rtl_433_ESP_433/src/rtl_433/devices/lacrosse_tx141x.c"
+  },
+  {
+    "symbol": "lacrosse_ws7000",
+    "name": "\"LaCrosse/ELV/Conrad WS7000/WS2500 weather sensors\"",
+    "modulation": "OOK_PULSE_PWM",
+    "disabled": "0",
+    "short_width_us": "400",
+    "file": "lib/rtl_433_ESP_433/src/rtl_433/devices/lacrosse_ws7000.c"
+  },
+  {
+    "symbol": "lacrossews",
+    "name": "\"LaCrosse WS-2310 / WS-3600 Weather Station\"",
+    "modulation": "OOK_PULSE_PWM",
+    "disabled": "0",
+    "short_width_us": "368",
+    "file": "lib/rtl_433_ESP_433/src/rtl_433/devices/lacrossews.c"
+  },
+  {
+    "symbol": "lightwave_rf",
+    "name": "\"LightwaveRF\"",
+    "modulation": "OOK_PULSE_PPM",
+    "disabled": "1",
+    "short_width_us": "250",
+    "file": "lib/rtl_433_ESP_433/src/rtl_433/devices/lightwave_rf.c"
+  },
+  {
+    "symbol": "markisol",
+    "name": "\"Markisol",
+    "modulation": "OOK_PULSE_PWM",
+    "disabled": "0",
+    "short_width_us": "368",
+    "file": "lib/rtl_433_ESP_433/src/rtl_433/devices/markisol.c"
+  },
+  {
+    "symbol": "maverick_et73",
+    "name": "\"Maverick ET73\"",
+    "modulation": "OOK_PULSE_PPM",
+    "disabled": "0",
+    "short_width_us": "1050",
+    "file": "lib/rtl_433_ESP_433/src/rtl_433/devices/maverick_et73.c"
+  },
+  {
+    "symbol": "maverick_et73x",
+    "name": "\"Maverick ET-732/733 BBQ Sensor\"",
+    "modulation": "OOK_PULSE_MANCHESTER_ZEROBIT",
+    "disabled": "0",
+    "short_width_us": "230",
+    "file": "lib/rtl_433_ESP_433/src/rtl_433/devices/maverick_et73x.c"
+  },
+  {
+    "symbol": "mebus433",
+    "name": "\"Mebus 433\"",
+    "modulation": "OOK_PULSE_PPM",
+    "disabled": "1",
+    "short_width_us": "800",
+    "file": "lib/rtl_433_ESP_433/src/rtl_433/devices/mebus.c"
+  },
+  {
+    "symbol": "megacode",
+    "name": "\"Linear Megacode Garage/Gate Remotes\"",
+    "modulation": "OOK_PULSE_PCM",
+    "disabled": "0",
+    "short_width_us": "1000",
+    "file": "lib/rtl_433_ESP_433/src/rtl_433/devices/megacode.c"
+  },
+  {
+    "symbol": "missil_ml0757",
+    "name": "\"Missil ML0757 weather station\"",
+    "modulation": "OOK_PULSE_PPM",
+    "disabled": "0",
+    "short_width_us": "975",
+    "file": "lib/rtl_433_ESP_433/src/rtl_433/devices/missil_ml0757.c"
+  },
+  {
+    "symbol": "neptune_r900",
+    "name": "\"Neptune R900 flow meters\"",
+    "modulation": "OOK_PULSE_PCM",
+    "disabled": "0",
+    "short_width_us": "30",
+    "file": "lib/rtl_433_ESP_433/src/rtl_433/devices/neptune_r900.c"
+  },
+  {
+    "symbol": "new_template",
+    "name": "\"Template decoder\"",
+    "modulation": "OOK_PULSE_PPM",
+    "disabled": "3",
+    "short_width_us": "132",
+    "file": "lib/rtl_433_ESP_433/src/rtl_433/devices/new_template.c"
+  },
+  {
+    "symbol": "newkaku",
+    "name": "\"KlikAanKlikUit Wireless Switch\"",
+    "modulation": "OOK_PULSE_PPM",
+    "disabled": "0",
+    "short_width_us": "300",
+    "file": "lib/rtl_433_ESP_433/src/rtl_433/devices/newkaku.c"
+  },
+  {
+    "symbol": "nexa",
+    "name": "\"Nexa\"",
+    "modulation": "OOK_PULSE_PPM",
+    "disabled": "0",
+    "short_width_us": "270",
+    "file": "lib/rtl_433_ESP_433/src/rtl_433/devices/nexa.c"
+  },
+  {
+    "symbol": "nexus",
+    "name": "\"Nexus",
+    "modulation": "OOK_PULSE_PPM",
+    "disabled": "0",
+    "short_width_us": "1000",
+    "file": "lib/rtl_433_ESP_433/src/rtl_433/devices/nexus.c"
+  },
+  {
+    "symbol": "nexus_sauna",
+    "name": "\"Nexus",
+    "modulation": "OOK_PULSE_PPM",
+    "disabled": "0",
+    "short_width_us": "1000",
+    "file": "lib/rtl_433_ESP_433/src/rtl_433/devices/nexus.c"
+  },
+  {
+    "symbol": "nice_flor_s",
+    "name": "\"Nice Flor-s remote control for gates\"",
+    "modulation": "OOK_PULSE_PWM",
+    "disabled": "1",
+    "short_width_us": "500",
+    "file": "lib/rtl_433_ESP_433/src/rtl_433/devices/nice_flor_s.c"
+  },
+  {
+    "symbol": "norgo",
+    "name": "\"Norgo NGE101\"",
+    "modulation": "OOK_PULSE_DMC",
+    "disabled": "0",
+    "short_width_us": "486",
+    "file": "lib/rtl_433_ESP_433/src/rtl_433/devices/norgo.c"
+  },
+  {
+    "symbol": "oil_standard_ask",
+    "name": "\"Oil Ultrasonic STANDARD ASK\"",
+    "modulation": "OOK_PULSE_PCM",
+    "disabled": "0",
+    "short_width_us": "500",
+    "file": "lib/rtl_433_ESP_433/src/rtl_433/devices/oil_standard.c"
+  },
+  {
+    "symbol": "opus_xt300",
+    "name": "\"Opus/Imagintronix XT300 Soil Moisture\"",
+    "modulation": "OOK_PULSE_PWM",
+    "disabled": "0",
+    "short_width_us": "544",
+    "file": "lib/rtl_433_ESP_433/src/rtl_433/devices/opus_xt300.c"
+  },
+  {
+    "symbol": "oregon_scientific",
+    "name": "\"Oregon Scientific Weather Sensor\"",
+    "modulation": "OOK_PULSE_MANCHESTER_ZEROBIT",
+    "disabled": "0",
+    "short_width_us": "440",
+    "file": "lib/rtl_433_ESP_433/src/rtl_433/devices/oregon_scientific.c"
+  },
+  {
+    "symbol": "oregon_scientific_sl109h",
+    "name": "\"Oregon Scientific SL109H Remote Thermal Hygro Sensor\"",
+    "modulation": "OOK_PULSE_PPM",
+    "disabled": "0",
+    "short_width_us": "2000",
+    "file": "lib/rtl_433_ESP_433/src/rtl_433/devices/oregon_scientific_sl109h.c"
+  },
+  {
+    "symbol": "oregon_scientific_v1",
+    "name": "\"OSv1 Temperature Sensor\"",
+    "modulation": "OOK_PULSE_PWM_OSV1",
+    "disabled": "0",
+    "short_width_us": "1465",
+    "file": "lib/rtl_433_ESP_433/src/rtl_433/devices/oregon_scientific_v1.c"
+  },
+  {
+    "symbol": "philips_aj3650",
+    "name": "\"Philips outdoor temperature sensor (type AJ3650)\"",
+    "modulation": "OOK_PULSE_PWM",
+    "disabled": "0",
+    "short_width_us": "2000",
+    "file": "lib/rtl_433_ESP_433/src/rtl_433/devices/philips_aj3650.c"
+  },
+  {
+    "symbol": "philips_aj7010",
+    "name": "\"Philips outdoor temperature sensor (type AJ7010)\"",
+    "modulation": "OOK_PULSE_PWM",
+    "disabled": "0",
+    "short_width_us": "2000",
+    "file": "lib/rtl_433_ESP_433/src/rtl_433/devices/philips_aj7010.c"
+  },
+  {
+    "symbol": "proflame2",
+    "name": "\"SmartFire Proflame 2 remote control\"",
+    "modulation": "OOK_PULSE_PCM",
+    "disabled": "0",
+    "short_width_us": "417",
+    "file": "lib/rtl_433_ESP_433/src/rtl_433/devices/proflame2.c"
+  },
+  {
+    "symbol": "prologue",
+    "name": "\"Prologue",
+    "modulation": "OOK_PULSE_PPM",
+    "disabled": "0",
+    "short_width_us": "2000",
+    "file": "lib/rtl_433_ESP_433/src/rtl_433/devices/prologue.c"
+  },
+  {
+    "symbol": "proove",
+    "name": "\"Proove / Nexa / KlikAanKlikUit Wireless Switch\"",
+    "modulation": "OOK_PULSE_PPM",
+    "disabled": "0",
+    "short_width_us": "270",
+    "file": "lib/rtl_433_ESP_433/src/rtl_433/devices/proove.c"
+  },
+  {
+    "symbol": "quhwa",
+    "name": "\"Quhwa\"",
+    "modulation": "OOK_PULSE_PWM",
+    "disabled": "0",
+    "short_width_us": "360",
+    "file": "lib/rtl_433_ESP_433/src/rtl_433/devices/quhwa.c"
+  },
+  {
+    "symbol": "radiohead_ask",
+    "name": "\"Radiohead ASK\"",
+    "modulation": "OOK_PULSE_PCM",
+    "disabled": "0",
+    "short_width_us": "500",
+    "file": "lib/rtl_433_ESP_433/src/rtl_433/devices/radiohead_ask.c"
+  },
+  {
+    "symbol": "sensible_living",
+    "name": "\"Sensible Living Mini-Plant Moisture Sensor\"",
+    "modulation": "OOK_PULSE_PCM",
+    "disabled": "0",
+    "short_width_us": "1000",
+    "file": "lib/rtl_433_ESP_433/src/rtl_433/devices/radiohead_ask.c"
+  },
+  {
+    "symbol": "rainpoint",
+    "name": "\"RainPoint soil temperature and moisture sensor\"",
+    "modulation": "OOK_PULSE_PCM",
+    "disabled": "0",
+    "short_width_us": "500",
+    "file": "lib/rtl_433_ESP_433/src/rtl_433/devices/rainpoint.c"
+  },
+  {
+    "symbol": "rainpoint_hcs012arf",
+    "name": "\"RainPoint HCS012ARF Rain Gauge sensor\"",
+    "modulation": "OOK_PULSE_PCM",
+    "disabled": "0",
+    "short_width_us": "320",
+    "file": "lib/rtl_433_ESP_433/src/rtl_433/devices/rainpoint_hcs012arf.c"
+  },
+  {
+    "symbol": "regency_fan",
+    "name": "\"Regency Ceiling Fan Remote (-f 303.75M to 303.96M)\"",
+    "modulation": "OOK_PULSE_PWM",
+    "disabled": "0",
+    "short_width_us": "580",
+    "file": "lib/rtl_433_ESP_433/src/rtl_433/devices/regency_fan.c"
+  },
+  {
+    "symbol": "revolt_nc5462",
+    "name": "\"Revolt NC-5642 Energy Meter\"",
+    "modulation": "OOK_PULSE_PWM",
+    "disabled": "0",
+    "short_width_us": "200",
+    "file": "lib/rtl_433_ESP_433/src/rtl_433/devices/revolt_nc5462.c"
+  },
+  {
+    "symbol": "revolt_zx7717",
+    "name": "\"Revolt ZX-7717 power meter\"",
+    "modulation": "OOK_PULSE_MANCHESTER_ZEROBIT",
+    "disabled": "0",
+    "short_width_us": "310",
+    "file": "lib/rtl_433_ESP_433/src/rtl_433/devices/revolt_zx7717.c"
+  },
+  {
+    "symbol": "rftech",
+    "name": "\"RF-tech\"",
+    "modulation": "OOK_PULSE_PPM",
+    "disabled": "1",
+    "short_width_us": "2000",
+    "file": "lib/rtl_433_ESP_433/src/rtl_433/devices/rftech.c"
+  },
+  {
+    "symbol": "risco_agility",
+    "name": "\"Risco 2 Way Agility protocol",
+    "modulation": "OOK_PULSE_PCM",
+    "disabled": "0",
+    "short_width_us": "175",
+    "file": "lib/rtl_433_ESP_433/src/rtl_433/devices/risco_agility.c"
+  },
+  {
+    "symbol": "rosstech_dcu706",
+    "name": "\"Rosstech Digital Control Unit DCU-706/Sundance/Jacuzzi\"",
+    "modulation": "OOK_PULSE_PCM",
+    "disabled": "0",
+    "short_width_us": "200",
+    "file": "lib/rtl_433_ESP_433/src/rtl_433/devices/rosstech_dcu706.c"
+  },
+  {
+    "symbol": "rubicson",
+    "name": "\"Rubicson",
+    "modulation": "OOK_PULSE_PPM",
+    "disabled": "0",
+    "short_width_us": "1000",
+    "file": "lib/rtl_433_ESP_433/src/rtl_433/devices/rubicson.c"
+  },
+  {
+    "symbol": "rubicson_48659",
+    "name": "\"Rubicson 48659 Thermometer\"",
+    "modulation": "OOK_PULSE_PPM",
+    "disabled": "0",
+    "short_width_us": "940",
+    "file": "lib/rtl_433_ESP_433/src/rtl_433/devices/rubicson_48659.c"
+  },
+  {
+    "symbol": "rubicson_pool_48942",
+    "name": "\"Rubicson Pool Thermometer 48942\"",
+    "modulation": "OOK_PULSE_PWM",
+    "disabled": "0",
+    "short_width_us": "280",
+    "file": "lib/rtl_433_ESP_433/src/rtl_433/devices/rubicson_pool_48942.c"
+  },
+  {
+    "symbol": "s3318p",
+    "name": "\"Conrad S3318P",
+    "modulation": "OOK_PULSE_PPM",
+    "disabled": "0",
+    "short_width_us": "1900",
+    "file": "lib/rtl_433_ESP_433/src/rtl_433/devices/s3318p.c"
+  },
+  {
+    "symbol": "schou_72543_rain",
+    "name": "\"Schou 72543 Day Rain Gauge",
+    "modulation": "OOK_PULSE_PWM",
+    "disabled": "0",
+    "short_width_us": "972",
+    "file": "lib/rtl_433_ESP_433/src/rtl_433/devices/schou_72543_rain.c"
+  },
+  {
+    "symbol": "schraeder",
+    "name": "\"Schrader TPMS\"",
+    "modulation": "OOK_PULSE_MANCHESTER_ZEROBIT",
+    "disabled": "0",
+    "short_width_us": "120",
+    "file": "lib/rtl_433_ESP_433/src/rtl_433/devices/schraeder.c"
+  },
+  {
+    "symbol": "schrader_EG53MA4",
+    "name": "\"Schrader TPMS EG53MA4",
+    "modulation": "OOK_PULSE_MANCHESTER_ZEROBIT",
+    "disabled": "0",
+    "short_width_us": "123",
+    "file": "lib/rtl_433_ESP_433/src/rtl_433/devices/schraeder.c"
+  },
+  {
+    "symbol": "schrader_SMD3MA4",
+    "name": "\"Schrader TPMS SMD3MA4 (Subaru) 3039 (Infiniti",
+    "modulation": "OOK_PULSE_PCM",
+    "disabled": "0",
+    "short_width_us": "120",
+    "file": "lib/rtl_433_ESP_433/src/rtl_433/devices/schraeder.c"
+  },
+  {
+    "symbol": "scmplus",
+    "name": "\"Standard Consumption Message Plus (SCMplus)\"",
+    "modulation": "OOK_PULSE_MANCHESTER_ZEROBIT",
+    "disabled": "0",
+    "short_width_us": "30",
+    "file": "lib/rtl_433_ESP_433/src/rtl_433/devices/scmplus.c"
+  },
+  {
+    "symbol": "secplus_v1",
+    "name": "\"Security+ (Keyfob)\"",
+    "modulation": "OOK_PULSE_PCM",
+    "disabled": "0",
+    "short_width_us": "500",
+    "file": "lib/rtl_433_ESP_433/src/rtl_433/devices/secplus_v1.c"
+  },
+  {
+    "symbol": "silvercrest",
+    "name": "\"Silvercrest Remote Control\"",
+    "modulation": "OOK_PULSE_PWM",
+    "disabled": "0",
+    "short_width_us": "264",
+    "file": "lib/rtl_433_ESP_433/src/rtl_433/devices/silvercrest.c"
+  },
+  {
+    "symbol": "ss_sensor",
+    "name": "\"SimpliSafe Home Security System (May require disabling automatic gain for KeyPad decodes)\"",
+    "modulation": "OOK_PULSE_PIWM_DC",
+    "disabled": "0",
+    "short_width_us": "500",
+    "file": "lib/rtl_433_ESP_433/src/rtl_433/devices/simplisafe.c"
+  },
+  {
+    "symbol": "skylink_motion",
+    "unresolved": true
+  },
+  {
+    "symbol": "smoke_gs558",
+    "name": "\"Wireless Smoke and Heat Detector GS 558\"",
+    "modulation": "OOK_PULSE_PWM",
+    "disabled": "1",
+    "short_width_us": "436",
+    "file": "lib/rtl_433_ESP_433/src/rtl_433/devices/smoke_gs558.c"
+  },
+  {
+    "symbol": "solight_te44",
+    "name": "\"Solight TE44/TE66",
+    "modulation": "OOK_PULSE_PPM",
+    "disabled": "0",
+    "short_width_us": "972",
+    "file": "lib/rtl_433_ESP_433/src/rtl_433/devices/solight_te44.c"
+  },
+  {
+    "symbol": "somfy_rts",
+    "name": "\"Somfy RTS\"",
+    "modulation": "OOK_PULSE_PCM",
+    "disabled": "0",
+    "short_width_us": "604",
+    "file": "lib/rtl_433_ESP_433/src/rtl_433/devices/somfy_rts.c"
+  },
+  {
+    "symbol": "springfield",
+    "name": "\"Springfield Temperature and Soil Moisture\"",
+    "modulation": "OOK_PULSE_PPM",
+    "disabled": "0",
+    "short_width_us": "2000",
+    "file": "lib/rtl_433_ESP_433/src/rtl_433/devices/springfield.c"
+  },
+  {
+    "symbol": "telldus_ft0385r",
+    "name": "\"Telldus weather station FT0385R sensors\"",
+    "modulation": "OOK_PULSE_MANCHESTER_ZEROBIT",
+    "disabled": "0",
+    "short_width_us": "500",
+    "file": "lib/rtl_433_ESP_433/src/rtl_433/devices/telldus_ft0385r.c"
+  },
+  {
+    "symbol": "tfa_30_3221",
+    "name": "\"TFA Dostmann 30.3221.02 T/H Outdoor Sensor (also 30.3249.02)\"",
+    "modulation": "OOK_PULSE_PWM",
+    "disabled": "0",
+    "short_width_us": "235",
+    "file": "lib/rtl_433_ESP_433/src/rtl_433/devices/tfa_30_3221.c"
+  },
+  {
+    "symbol": "tfa_drop_303233",
+    "name": "\"TFA Drop Rain Gauge 30.3233.01\"",
+    "modulation": "OOK_PULSE_PWM",
+    "disabled": "0",
+    "short_width_us": "255",
+    "file": "lib/rtl_433_ESP_433/src/rtl_433/devices/tfa_drop_30.3233.c"
+  },
+  {
+    "symbol": "tfa_pool_thermometer",
+    "name": "\"TFA pool temperature sensor\"",
+    "modulation": "OOK_PULSE_PPM",
+    "disabled": "0",
+    "short_width_us": "2000",
+    "file": "lib/rtl_433_ESP_433/src/rtl_433/devices/tfa_pool_thermometer.c"
+  },
+  {
+    "symbol": "tfa_twin_plus_303049",
+    "name": "\"TFA-Twin-Plus-30.3049",
+    "modulation": "OOK_PULSE_PPM",
+    "disabled": "0",
+    "short_width_us": "2000",
+    "file": "lib/rtl_433_ESP_433/src/rtl_433/devices/tfa_twin_plus_30.3049.c"
+  },
+  {
+    "symbol": "thermopro_tp11",
+    "name": "\"Thermopro TP11 Thermometer\"",
+    "modulation": "OOK_PULSE_PPM",
+    "disabled": "0",
+    "short_width_us": "500",
+    "file": "lib/rtl_433_ESP_433/src/rtl_433/devices/thermopro_tp11.c"
+  },
+  {
+    "symbol": "thermopro_tp12",
+    "name": "\"ThermoPro TP08/TP12/TP20 thermometer\"",
+    "modulation": "OOK_PULSE_PPM",
+    "disabled": "0",
+    "short_width_us": "500",
+    "file": "lib/rtl_433_ESP_433/src/rtl_433/devices/thermopro_tp12.c"
+  },
+  {
+    "symbol": "thermopro_tx2",
+    "name": "\"ThermoPro-TX2 temperature sensor\"",
+    "modulation": "OOK_PULSE_PPM",
+    "disabled": "1",
+    "short_width_us": "2000",
+    "file": "lib/rtl_433_ESP_433/src/rtl_433/devices/thermopro_tx2.c"
+  },
+  {
+    "symbol": "thermopro_tx2c",
+    "name": "\"ThermoPro TX-2C Thermometer and Humidity sensor\"",
+    "modulation": "OOK_PULSE_PPM",
+    "disabled": "1",
+    "short_width_us": "1958",
+    "file": "lib/rtl_433_ESP_433/src/rtl_433/devices/thermopro_tx2c.c"
+  },
+  {
+    "symbol": "thermor",
+    "name": "\"Thermor DG950 weather station\"",
+    "modulation": "OOK_PULSE_PWM",
+    "disabled": "0",
+    "short_width_us": "680",
+    "file": "lib/rtl_433_ESP_433/src/rtl_433/devices/thermor.c"
+  },
+  {
+    "symbol": "tpms_eezrv",
+    "name": "\"EezTire E618",
+    "modulation": "OOK_PULSE_MANCHESTER_ZEROBIT",
+    "disabled": "0",
+    "short_width_us": "50",
+    "file": "lib/rtl_433_ESP_433/src/rtl_433/devices/tpms_eezrv.c"
+  },
+  {
+    "symbol": "tpms_gm",
+    "name": "\"GM-Aftermarket TPMS\"",
+    "modulation": "OOK_PULSE_MANCHESTER_ZEROBIT",
+    "disabled": "0",
+    "short_width_us": "120",
+    "file": "lib/rtl_433_ESP_433/src/rtl_433/devices/tpms_gm.c"
+  },
+  {
+    "symbol": "tpms_tyreguard400",
+    "name": "\"TyreGuard 400 TPMS\"",
+    "modulation": "OOK_PULSE_MANCHESTER_ZEROBIT",
+    "disabled": "0",
+    "short_width_us": "100",
+    "file": "lib/rtl_433_ESP_433/src/rtl_433/devices/tpms_tyreguard400.c"
+  },
+  {
+    "symbol": "ts_ft002",
+    "name": "\"TS-FT002 Wireless Ultrasonic Tank Liquid Level Meter With Temperature Sensor\"",
+    "modulation": "OOK_PULSE_PPM",
+    "disabled": "0",
+    "short_width_us": "464",
+    "file": "lib/rtl_433_ESP_433/src/rtl_433/devices/ts_ft002.c"
+  },
+  {
+    "symbol": "ttx201",
+    "name": "\"Emos TTX201 Temperature Sensor\"",
+    "modulation": "OOK_PULSE_MANCHESTER_ZEROBIT",
+    "disabled": "0",
+    "short_width_us": "510",
+    "file": "lib/rtl_433_ESP_433/src/rtl_433/devices/ttx201.c"
+  },
+  {
+    "symbol": "vaillant_vrt340f",
+    "name": "\"Vaillant calorMatic VRT340f Central Heating Control\"",
+    "modulation": "OOK_PULSE_DMC",
+    "disabled": "0",
+    "short_width_us": "836",
+    "file": "lib/rtl_433_ESP_433/src/rtl_433/devices/vaillant_vrt340f.c"
+  },
+  {
+    "symbol": "vauno_en8822c",
+    "name": "\"Vauno EN8822C\"",
+    "modulation": "OOK_PULSE_PPM",
+    "disabled": "0",
+    "short_width_us": "2000",
+    "file": "lib/rtl_433_ESP_433/src/rtl_433/devices/vauno_en8822c.c"
+  },
+  {
+    "symbol": "visonic_powercode",
+    "name": "\"Visonic powercode\"",
+    "modulation": "OOK_PULSE_PWM",
+    "disabled": "0",
+    "short_width_us": "400",
+    "file": "lib/rtl_433_ESP_433/src/rtl_433/devices/visonic_powercode.c"
+  },
+  {
+    "symbol": "watts_thermostat",
+    "name": "\"Watts WFHT-RF Thermostat\"",
+    "modulation": "OOK_PULSE_PWM",
+    "disabled": "0",
+    "short_width_us": "260",
+    "file": "lib/rtl_433_ESP_433/src/rtl_433/devices/watts_thermostat.c"
+  },
+  {
+    "symbol": "waveman",
+    "name": "\"Waveman Switch Transmitter\"",
+    "modulation": "OOK_PULSE_PWM",
+    "disabled": "0",
+    "short_width_us": "357",
+    "file": "lib/rtl_433_ESP_433/src/rtl_433/devices/waveman.c"
+  },
+  {
+    "symbol": "wec2103",
+    "name": "\"WEC-2103 temperature/humidity sensor\"",
+    "modulation": "OOK_PULSE_PPM",
+    "disabled": "0",
+    "short_width_us": "1900",
+    "file": "lib/rtl_433_ESP_433/src/rtl_433/devices/wec2103.c"
+  },
+  {
+    "symbol": "wg_pb12v1",
+    "name": "\"WG-PB12V1 Temperature Sensor\"",
+    "modulation": "OOK_PULSE_PWM",
+    "disabled": "0",
+    "short_width_us": "564",
+    "file": "lib/rtl_433_ESP_433/src/rtl_433/devices/wg_pb12v1.c"
+  },
+  {
+    "symbol": "ws2032",
+    "name": "\"WS2032 weather station\"",
+    "modulation": "OOK_PULSE_PWM",
+    "disabled": "0",
+    "short_width_us": "500",
+    "file": "lib/rtl_433_ESP_433/src/rtl_433/devices/ws2032.c"
+  },
+  {
+    "symbol": "wssensor",
+    "name": "\"Hyundai WS SENZOR Remote Temperature Sensor\"",
+    "modulation": "OOK_PULSE_PPM",
+    "disabled": "0",
+    "short_width_us": "1000",
+    "file": "lib/rtl_433_ESP_433/src/rtl_433/devices/wssensor.c"
+  },
+  {
+    "symbol": "wt1024",
+    "name": "\"WT0124 Pool Thermometer\"",
+    "modulation": "OOK_PULSE_PWM",
+    "disabled": "0",
+    "short_width_us": "680",
+    "file": "lib/rtl_433_ESP_433/src/rtl_433/devices/wt0124.c"
+  },
+  {
+    "symbol": "wt450",
+    "name": "\"WT450",
+    "modulation": "OOK_PULSE_DMC",
+    "disabled": "0",
+    "short_width_us": "976",
+    "file": "lib/rtl_433_ESP_433/src/rtl_433/devices/wt450.c"
+  },
+  {
+    "symbol": "X10_RF",
+    "name": "\"X10 RF\"",
+    "modulation": "OOK_PULSE_PPM",
+    "disabled": "0",
+    "short_width_us": "562",
+    "file": "lib/rtl_433_ESP_433/src/rtl_433/devices/x10_rf.c"
+  },
+  {
+    "symbol": "x10_sec",
+    "name": "\"X10 Security\"",
+    "modulation": "OOK_PULSE_PPM",
+    "disabled": "0",
+    "short_width_us": "562",
+    "file": "lib/rtl_433_ESP_433/src/rtl_433/devices/x10_sec.c"
+  },
+  {
+    "symbol": "yale_hsa",
+    "name": "\"Yale HSA (Home Security Alarm)",
+    "modulation": "OOK_PULSE_PWM",
+    "disabled": "0",
+    "short_width_us": "850",
+    "file": "lib/rtl_433_ESP_433/src/rtl_433/devices/yale_hsa.c"
+  },
+  {
+    "symbol": "ambientweather_wh31e",
+    "name": "\"Ambient Weather WH31E Thermo-Hygrometer Sensor",
+    "modulation": "FSK_PULSE_PCM",
+    "disabled": "0",
+    "short_width_us": "56",
+    "file": "lib/rtl_433_ESP_433/src/rtl_433/devices/ambientweather_wh31e.c"
+  },
+  {
+    "symbol": "ant_antplus",
+    "name": "\"ANT and ANT+ devices\"",
+    "modulation": "FSK_PULSE_PCM",
+    "disabled": "1",
+    "short_width_us": "1",
+    "file": "lib/rtl_433_ESP_433/src/rtl_433/devices/ant_antplus.c"
+  },
+  {
+    "symbol": "apator_metra_erm30",
+    "name": "\"Apator Metra E-RM 30\"",
+    "modulation": "FSK_PULSE_PCM",
+    "disabled": "0",
+    "short_width_us": "25",
+    "file": "lib/rtl_433_ESP_433/src/rtl_433/devices/apator_metra_erm30.c"
+  },
+  {
+    "symbol": "arad_ms_meter",
+    "name": "\"Arad/Master Meter Dialog3G water utility meter\"",
+    "modulation": "FSK_PULSE_MANCHESTER_ZEROBIT",
+    "disabled": "1",
+    "short_width_us": "8.4",
+    "file": "lib/rtl_433_ESP_433/src/rtl_433/devices/arad_ms_meter.c"
+  },
+  {
+    "symbol": "archos_tbh",
+    "name": "\"TBH weather sensor\"",
+    "modulation": "FSK_PULSE_PCM",
+    "disabled": "0",
+    "short_width_us": "212",
+    "file": "lib/rtl_433_ESP_433/src/rtl_433/devices/archos_tbh.c"
+  },
+  {
+    "symbol": "arexx_ml",
+    "name": "\"Arexx Multilogger IP-HA90",
+    "modulation": "FSK_PULSE_MANCHESTER_ZEROBIT",
+    "disabled": "0",
+    "short_width_us": "208",
+    "file": "lib/rtl_433_ESP_433/src/rtl_433/devices/arexx_ml.c"
+  },
+  {
+    "symbol": "badger_orion",
+    "name": "\"Badger ORION water meter",
+    "modulation": "FSK_PULSE_PCM",
+    "disabled": "0",
+    "short_width_us": "10",
+    "file": "lib/rtl_433_ESP_433/src/rtl_433/devices/badger_water.c"
+  },
+  {
+    "symbol": "bresser_5in1",
+    "name": "\"Bresser Weather Center 5-in-1\"",
+    "modulation": "FSK_PULSE_PCM",
+    "disabled": "0",
+    "short_width_us": "124",
+    "file": "lib/rtl_433_ESP_433/src/rtl_433/devices/bresser_5in1.c"
+  },
+  {
+    "symbol": "bresser_6in1",
+    "name": "\"Bresser Weather Center 6-in-1",
+    "modulation": "FSK_PULSE_PCM",
+    "disabled": "0",
+    "short_width_us": "124",
+    "file": "lib/rtl_433_ESP_433/src/rtl_433/devices/bresser_6in1.c"
+  },
+  {
+    "symbol": "bresser_7in1",
+    "name": "\"Bresser Weather Center 7-in-1",
+    "modulation": "FSK_PULSE_PCM",
+    "disabled": "0",
+    "short_width_us": "124",
+    "file": "lib/rtl_433_ESP_433/src/rtl_433/devices/bresser_7in1.c"
+  },
+  {
+    "symbol": "bresser_leakage",
+    "name": "\"Bresser water leakage\"",
+    "modulation": "FSK_PULSE_PCM",
+    "disabled": "0",
+    "short_width_us": "124",
+    "file": "lib/rtl_433_ESP_433/src/rtl_433/devices/bresser_leakage.c"
+  },
+  {
+    "symbol": "bresser_lightning",
+    "name": "\"Bresser lightning\"",
+    "modulation": "FSK_PULSE_PCM",
+    "disabled": "0",
+    "short_width_us": "124",
+    "file": "lib/rtl_433_ESP_433/src/rtl_433/devices/bresser_lightning.c"
+  },
+  {
+    "symbol": "cavius",
+    "name": "\"Cavius smoke",
+    "modulation": "FSK_PULSE_PCM",
+    "disabled": "0",
+    "short_width_us": "206",
+    "file": "lib/rtl_433_ESP_433/src/rtl_433/devices/cavius.c"
+  },
+  {
+    "symbol": "ced7000",
+    "name": "\"CED7000 Shot Timer\"",
+    "modulation": "FSK_PULSE_PCM",
+    "disabled": "1",
+    "short_width_us": "1300",
+    "file": "lib/rtl_433_ESP_433/src/rtl_433/devices/ced7000.c"
+  },
+  {
+    "symbol": "chamberlain_cwpirc",
+    "name": "\"Chamberlain CWPIRC PIR Sensor\"",
+    "modulation": "FSK_PULSE_PCM",
+    "disabled": "0",
+    "short_width_us": "25",
+    "file": "lib/rtl_433_ESP_433/src/rtl_433/devices/chamberlain_cwpirc.c"
+  },
+  {
+    "symbol": "current_cost",
+    "name": "\"CurrentCost Current Sensor\"",
+    "modulation": "FSK_PULSE_PCM",
+    "disabled": "0",
+    "short_width_us": "250",
+    "file": "lib/rtl_433_ESP_433/src/rtl_433/devices/current_cost.c"
+  },
+  {
+    "symbol": "danfoss_CFR",
+    "name": "\"Danfoss CFR Thermostat\"",
+    "modulation": "FSK_PULSE_PCM",
+    "disabled": "0",
+    "short_width_us": "100",
+    "file": "lib/rtl_433_ESP_433/src/rtl_433/devices/danfoss.c"
+  },
+  {
+    "symbol": "deltadore_x3d",
+    "name": "\"DeltaDore X3D devices\"",
+    "modulation": "FSK_PULSE_PCM",
+    "disabled": "0",
+    "short_width_us": "25",
+    "file": "lib/rtl_433_ESP_433/src/rtl_433/devices/deltadore_x3d.c"
+  },
+  {
+    "symbol": "directv",
+    "name": "\"DirecTV RC66RX Remote Control\"",
+    "modulation": "FSK_PULSE_PCM",
+    "disabled": "0",
+    "short_width_us": "600",
+    "file": "lib/rtl_433_ESP_433/src/rtl_433/devices/directv.c"
+  },
+  {
+    "symbol": "ecodhome",
+    "name": "\"EcoDHOME Smart Socket and MCEE Solar monitor\"",
+    "modulation": "FSK_PULSE_PCM",
+    "disabled": "0",
+    "short_width_us": "250",
+    "file": "lib/rtl_433_ESP_433/src/rtl_433/devices/ecodhome.c"
+  },
+  {
+    "symbol": "efergy_e2_classic",
+    "name": "\"Efergy e2 classic\"",
+    "modulation": "FSK_PULSE_PWM",
+    "disabled": "0",
+    "short_width_us": "64",
+    "file": "lib/rtl_433_ESP_433/src/rtl_433/devices/efergy_e2_classic.c"
+  },
+  {
+    "symbol": "efergy_optical",
+    "name": "\"Efergy Optical\"",
+    "modulation": "FSK_PULSE_PWM",
+    "disabled": "0",
+    "short_width_us": "64",
+    "file": "lib/rtl_433_ESP_433/src/rtl_433/devices/efergy_optical.c"
+  },
+  {
+    "symbol": "emax",
+    "name": "\"Emax W6",
+    "modulation": "FSK_PULSE_PCM",
+    "disabled": "0",
+    "short_width_us": "90",
+    "file": "lib/rtl_433_ESP_433/src/rtl_433/devices/emax.c"
+  },
+  {
+    "symbol": "emontx",
+    "name": "\"emonTx OpenEnergyMonitor\"",
+    "modulation": "FSK_PULSE_PCM",
+    "disabled": "0",
+    "short_width_us": "2000000.0f / (49230 + 49261)",
+    "file": "lib/rtl_433_ESP_433/src/rtl_433/devices/emontx.c"
+  },
+  {
+    "symbol": "esic_emt7110",
+    "name": "\"ESIC EMT7110 power meter\"",
+    "modulation": "FSK_PULSE_PCM",
+    "disabled": "0",
+    "short_width_us": "104",
+    "file": "lib/rtl_433_ESP_433/src/rtl_433/devices/esic_emt7110.c"
+  },
+  {
+    "symbol": "fineoffset_WH25",
+    "name": "\"Fine Offset Electronics",
+    "modulation": "FSK_PULSE_PCM",
+    "disabled": "0",
+    "short_width_us": "58",
+    "file": "lib/rtl_433_ESP_433/src/rtl_433/devices/fineoffset.c"
+  },
+  {
+    "symbol": "fineoffset_WH51",
+    "name": "\"Fine Offset Electronics/ECOWITT WH51",
+    "modulation": "FSK_PULSE_PCM",
+    "disabled": "0",
+    "short_width_us": "58",
+    "file": "lib/rtl_433_ESP_433/src/rtl_433/devices/fineoffset.c"
+  },
+  {
+    "symbol": "tfa_303151",
+    "name": "\"TFA 30.3151 Weather Station\"",
+    "modulation": "FSK_PULSE_PCM",
+    "disabled": "0",
+    "short_width_us": "60",
+    "file": "lib/rtl_433_ESP_433/src/rtl_433/devices/fineoffset_wh1050.c"
+  },
+  {
+    "symbol": "fineoffset_wh1080_fsk",
+    "name": "\"Fine Offset Electronics WH1080/WH3080 Weather Station (FSK)\"",
+    "modulation": "FSK_PULSE_PCM",
+    "disabled": "0",
+    "short_width_us": "58",
+    "file": "lib/rtl_433_ESP_433/src/rtl_433/devices/fineoffset_wh1080.c"
+  },
+  {
+    "symbol": "fineoffset_wh31l",
+    "name": "\"Ambient Weather WH31L (FineOffset WH57) Lightning-Strike sensor\"",
+    "modulation": "FSK_PULSE_PCM",
+    "disabled": "0",
+    "short_width_us": "56",
+    "file": "lib/rtl_433_ESP_433/src/rtl_433/devices/fineoffset_wh31l.c"
+  },
+  {
+    "symbol": "fineoffset_wh45",
+    "name": "\"Fine Offset Electronics WH45 air quality sensor\"",
+    "modulation": "FSK_PULSE_PCM",
+    "disabled": "0",
+    "short_width_us": "58",
+    "file": "lib/rtl_433_ESP_433/src/rtl_433/devices/fineoffset_wh45.c"
+  },
+  {
+    "symbol": "fineoffset_wh46",
+    "name": "\"Fine Offset Electronics WH46 air quality sensor\"",
+    "modulation": "FSK_PULSE_PCM",
+    "disabled": "0",
+    "short_width_us": "58",
+    "file": "lib/rtl_433_ESP_433/src/rtl_433/devices/fineoffset_wh46.c"
+  },
+  {
+    "symbol": "fineoffset_wh55",
+    "name": "\"Fine Offset / Ecowitt WH55 water leak sensor\"",
+    "modulation": "FSK_PULSE_PCM",
+    "disabled": "0",
+    "short_width_us": "60",
+    "file": "lib/rtl_433_ESP_433/src/rtl_433/devices/fineoffset_wh55.c"
+  },
+  {
+    "symbol": "fineoffset_wn34",
+    "name": "\"Fine Offset Electronics WN34S/L/D and Froggit DP150/D35 temperature sensor\"",
+    "modulation": "FSK_PULSE_PCM",
+    "disabled": "0",
+    "short_width_us": "58",
+    "file": "lib/rtl_433_ESP_433/src/rtl_433/devices/fineoffset_wn34.c"
+  },
+  {
+    "symbol": "fineoffset_ws80",
+    "name": "\"Fine Offset Electronics WS80 weather station\"",
+    "modulation": "FSK_PULSE_PCM",
+    "disabled": "0",
+    "short_width_us": "58",
+    "file": "lib/rtl_433_ESP_433/src/rtl_433/devices/fineoffset_ws80.c"
+  },
+  {
+    "symbol": "fineoffset_ws90",
+    "name": "\"Fine Offset Electronics WS90 weather station\"",
+    "modulation": "FSK_PULSE_PCM",
+    "disabled": "0",
+    "short_width_us": "58",
+    "file": "lib/rtl_433_ESP_433/src/rtl_433/devices/fineoffset_ws90.c"
+  },
+  {
+    "symbol": "flowis",
+    "name": "\"Flowis flow meters\"",
+    "modulation": "FSK_PULSE_PCM",
+    "disabled": "0",
+    "short_width_us": "10",
+    "file": "lib/rtl_433_ESP_433/src/rtl_433/devices/flowis.c"
+  },
+  {
+    "symbol": "ge_coloreffects",
+    "name": "\"GE Color Effects\"",
+    "modulation": "FSK_PULSE_PCM",
+    "disabled": "0",
+    "short_width_us": "52",
+    "file": "lib/rtl_433_ESP_433/src/rtl_433/devices/ge_coloreffects.c"
+  },
+  {
+    "symbol": "geo_minim",
+    "name": "\"GEO minim+ energy monitor\"",
+    "modulation": "FSK_PULSE_PCM",
+    "disabled": "0",
+    "short_width_us": "24",
+    "file": "lib/rtl_433_ESP_433/src/rtl_433/devices/geo_minim.c"
+  },
+  {
+    "symbol": "gridstream96",
+    "name": "\"Landis & Gyr Gridstream Power Meters 9.6k\"",
+    "modulation": "FSK_PULSE_PCM",
+    "disabled": "0",
+    "short_width_us": "104",
+    "file": "lib/rtl_433_ESP_433/src/rtl_433/devices/gridstream.c"
+  },
+  {
+    "symbol": "gridstream192",
+    "name": "\"Landis & Gyr Gridstream Power Meters 19.2k\"",
+    "modulation": "FSK_PULSE_PCM",
+    "disabled": "0",
+    "short_width_us": "52",
+    "file": "lib/rtl_433_ESP_433/src/rtl_433/devices/gridstream.c"
+  },
+  {
+    "symbol": "gridstream384",
+    "name": "\"Landis & Gyr Gridstream Power Meters 38.4k\"",
+    "modulation": "FSK_PULSE_PCM",
+    "disabled": "0",
+    "short_width_us": "22",
+    "file": "lib/rtl_433_ESP_433/src/rtl_433/devices/gridstream.c"
+  },
+  {
+    "symbol": "hcs200_fsk",
+    "name": "\"Microchip HCS200/HCS300 KeeLoq Hopping Encoder based remotes (FSK)\"",
+    "modulation": "FSK_PULSE_PWM",
+    "disabled": "0",
+    "short_width_us": "370",
+    "file": "lib/rtl_433_ESP_433/src/rtl_433/devices/hcs200.c"
+  },
+  {
+    "symbol": "holman_ws5029pcm",
+    "name": "\"AOK Weather Station rebrand Holman Industries iWeather WS5029",
+    "modulation": "FSK_PULSE_PCM",
+    "disabled": "0",
+    "short_width_us": "100",
+    "file": "lib/rtl_433_ESP_433/src/rtl_433/devices/holman_ws5029.c"
+  },
+  {
+    "symbol": "holman_ws5029pwm",
+    "name": "\"Holman Industries iWeather WS5029 weather station (older PWM)\"",
+    "modulation": "FSK_PULSE_PWM",
+    "disabled": "0",
+    "short_width_us": "488",
+    "file": "lib/rtl_433_ESP_433/src/rtl_433/devices/holman_ws5029.c"
+  },
+  {
+    "symbol": "hondaremote",
+    "name": "\"Honda Car Key\"",
+    "modulation": "FSK_PULSE_PWM",
+    "disabled": "1",
+    "short_width_us": "250",
+    "file": "lib/rtl_433_ESP_433/src/rtl_433/devices/hondaremote.c"
+  },
+  {
+    "symbol": "honeywell_cm921",
+    "name": "\"Honeywell CM921 Wireless Programmable Room Thermostat\"",
+    "modulation": "FSK_PULSE_PCM",
+    "disabled": "0",
+    "short_width_us": "26",
+    "file": "lib/rtl_433_ESP_433/src/rtl_433/devices/honeywell_cm921.c"
+  },
+  {
+    "symbol": "honeywell_wdb_fsk",
+    "name": "\"Honeywell ActivLink",
+    "modulation": "FSK_PULSE_PWM",
+    "disabled": "0",
+    "short_width_us": "160",
+    "file": "lib/rtl_433_ESP_433/src/rtl_433/devices/honeywell_wdb.c"
+  },
+  {
+    "symbol": "ikea_sparsnas",
+    "name": "\"IKEA Sparsnas Energy Meter Monitor\"",
+    "modulation": "FSK_PULSE_PCM",
+    "disabled": "0",
+    "short_width_us": "27",
+    "file": "lib/rtl_433_ESP_433/src/rtl_433/devices/ikea_sparsnas.c"
+  },
+  {
+    "symbol": "inkbird_ith20r",
+    "name": "\"Inkbird ITH-20R temperature humidity sensor\"",
+    "modulation": "FSK_PULSE_PCM",
+    "disabled": "0",
+    "short_width_us": "100",
+    "file": "lib/rtl_433_ESP_433/src/rtl_433/devices/inkbird_ith20r.c"
+  },
+  {
+    "symbol": "insteon",
+    "name": "\"Insteon\"",
+    "modulation": "FSK_PULSE_PCM",
+    "disabled": "0",
+    "short_width_us": "110",
+    "file": "lib/rtl_433_ESP_433/src/rtl_433/devices/insteon.c"
+  },
+  {
+    "symbol": "lacrosse_breezepro",
+    "name": "\"LaCrosse Technology View LTV-WSDTH01 Breeze Pro Wind Sensor\"",
+    "modulation": "FSK_PULSE_PCM",
+    "disabled": "0",
+    "short_width_us": "107",
+    "file": "lib/rtl_433_ESP_433/src/rtl_433/devices/lacrosse_breezepro.c"
+  },
+  {
+    "symbol": "lacrosse_r1",
+    "name": "\"LaCrosse Technology View LTV-R1",
+    "modulation": "FSK_PULSE_PCM",
+    "disabled": "0",
+    "short_width_us": "104",
+    "file": "lib/rtl_433_ESP_433/src/rtl_433/devices/lacrosse_r1.c"
+  },
+  {
+    "symbol": "lacrosse_th3",
+    "name": "\"LaCrosse Technology View LTV-TH Thermo/Hygro Sensor\"",
+    "modulation": "FSK_PULSE_PCM",
+    "disabled": "0",
+    "short_width_us": "104",
+    "file": "lib/rtl_433_ESP_433/src/rtl_433/devices/lacrosse_th3.c"
+  },
+  {
+    "symbol": "lacrosse_tx31u",
+    "name": "\"LaCrosse TX31U-IT",
+    "modulation": "FSK_PULSE_PCM",
+    "disabled": "0",
+    "short_width_us": "116",
+    "file": "lib/rtl_433_ESP_433/src/rtl_433/devices/lacrosse_tx31u.c"
+  },
+  {
+    "symbol": "lacrosse_tx34",
+    "name": "\"LaCrosse TX34-IT rain gauge\"",
+    "modulation": "FSK_PULSE_PCM",
+    "disabled": "0",
+    "short_width_us": "58",
+    "file": "lib/rtl_433_ESP_433/src/rtl_433/devices/lacrosse_tx34.c"
+  },
+  {
+    "symbol": "lacrosse_tx29",
+    "name": "\"LaCrosse TX29IT",
+    "modulation": "FSK_PULSE_PCM",
+    "disabled": "0",
+    "short_width_us": "55",
+    "file": "lib/rtl_433_ESP_433/src/rtl_433/devices/lacrosse_tx35.c"
+  },
+  {
+    "symbol": "lacrosse_tx35",
+    "name": "\"LaCrosse TX35DTH-IT",
+    "modulation": "FSK_PULSE_PCM",
+    "disabled": "0",
+    "short_width_us": "105",
+    "file": "lib/rtl_433_ESP_433/src/rtl_433/devices/lacrosse_tx35.c"
+  },
+  {
+    "symbol": "lacrosse_wr1",
+    "name": "\"LaCrosse Technology View LTV-WR1 Multi Sensor\"",
+    "modulation": "FSK_PULSE_PCM",
+    "disabled": "0",
+    "short_width_us": "104",
+    "file": "lib/rtl_433_ESP_433/src/rtl_433/devices/lacrosse_wr1.c"
+  },
+  {
+    "symbol": "m_bus_mode_c_t",
+    "name": "\"Wireless M-Bus",
+    "modulation": "FSK_PULSE_PCM",
+    "disabled": "0",
+    "short_width_us": "10",
+    "file": "lib/rtl_433_ESP_433/src/rtl_433/devices/m_bus.c"
+  },
+  {
+    "symbol": "m_bus_mode_c_t_downlink",
+    "name": "\"Wireless M-Bus",
+    "modulation": "FSK_PULSE_PCM",
+    "disabled": "0",
+    "short_width_us": "(1000.0 / 32.768)",
+    "file": "lib/rtl_433_ESP_433/src/rtl_433/devices/m_bus.c"
+  },
+  {
+    "symbol": "m_bus_mode_s",
+    "name": "\"Wireless M-Bus",
+    "modulation": "FSK_PULSE_PCM",
+    "disabled": "0",
+    "short_width_us": "(1000.0 / 32.768)",
+    "file": "lib/rtl_433_ESP_433/src/rtl_433/devices/m_bus.c"
+  },
+  {
+    "symbol": "m_bus_mode_r",
+    "name": "\"Wireless M-Bus",
+    "modulation": "FSK_PULSE_MANCHESTER_ZEROBIT",
+    "disabled": "0",
+    "short_width_us": "(1000.0f / 4.8f / 2)",
+    "file": "lib/rtl_433_ESP_433/src/rtl_433/devices/m_bus.c"
+  },
+  {
+    "symbol": "m_bus_mode_f",
+    "name": "\"Wireless M-Bus",
+    "modulation": "FSK_PULSE_PCM",
+    "disabled": "1",
+    "short_width_us": "1000.0f / 2.4f",
+    "file": "lib/rtl_433_ESP_433/src/rtl_433/devices/m_bus.c"
+  },
+  {
+    "symbol": "marlec_solar",
+    "name": "\"Marlec Solar iBoost+ sensors\"",
+    "modulation": "FSK_PULSE_PCM",
+    "disabled": "0",
+    "short_width_us": "20",
+    "file": "lib/rtl_433_ESP_433/src/rtl_433/devices/marlec_solar.c"
+  },
+  {
+    "symbol": "maverick_xr30",
+    "name": "\"Maverick XR-30 BBQ Sensor\"",
+    "modulation": "FSK_PULSE_PCM",
+    "disabled": "0",
+    "short_width_us": "360",
+    "file": "lib/rtl_433_ESP_433/src/rtl_433/devices/maverick_xr30.c"
+  },
+  {
+    "symbol": "maverick_xr50",
+    "name": "\"Maverick XR-50 BBQ Sensor\"",
+    "modulation": "FSK_PULSE_PCM",
+    "disabled": "0",
+    "short_width_us": "107",
+    "file": "lib/rtl_433_ESP_433/src/rtl_433/devices/maverick_xr50.c"
+  },
+  {
+    "symbol": "mueller_hotrod",
+    "name": "\"Mueller Hot Rod water meter\"",
+    "modulation": "FSK_PULSE_PCM",
+    "disabled": "0",
+    "short_width_us": "26",
+    "file": "lib/rtl_433_ESP_433/src/rtl_433/devices/mueller_hotrod.c"
+  },
+  {
+    "symbol": "oil_smart",
+    "name": "\"Oil Ultrasonic SMART FSK\"",
+    "modulation": "FSK_PULSE_PCM",
+    "disabled": "0",
+    "short_width_us": "500",
+    "file": "lib/rtl_433_ESP_433/src/rtl_433/devices/oil_smart.c"
+  },
+  {
+    "symbol": "oil_standard",
+    "name": "\"Oil Ultrasonic STANDARD FSK\"",
+    "modulation": "FSK_PULSE_PCM",
+    "disabled": "0",
+    "short_width_us": "500",
+    "file": "lib/rtl_433_ESP_433/src/rtl_433/devices/oil_standard.c"
+  },
+  {
+    "symbol": "oil_watchman",
+    "name": "\"Watchman Sonic / Apollo Ultrasonic / Beckett Rocket oil tank monitor\"",
+    "modulation": "FSK_PULSE_PCM",
+    "disabled": "0",
+    "short_width_us": "1000",
+    "file": "lib/rtl_433_ESP_433/src/rtl_433/devices/oil_watchman.c"
+  },
+  {
+    "symbol": "oil_watchman_advanced",
+    "name": "\"Watchman Sonic Advanced / Plus",
+    "modulation": "FSK_PULSE_PCM",
+    "disabled": "0",
+    "short_width_us": "500",
+    "file": "lib/rtl_433_ESP_433/src/rtl_433/devices/oil_watchman_advanced.c"
+  },
+  {
+    "symbol": "quinetic",
+    "name": "\"Quinetic\"",
+    "modulation": "FSK_PULSE_PCM",
+    "disabled": "1",
+    "short_width_us": "10",
+    "file": "lib/rtl_433_ESP_433/src/rtl_433/devices/quinetic.c"
+  },
+  {
+    "symbol": "rojaflex",
+    "name": "\"RojaFlex shutter and remote devices\"",
+    "modulation": "FSK_PULSE_PCM",
+    "disabled": "0",
+    "short_width_us": "100",
+    "file": "lib/rtl_433_ESP_433/src/rtl_433/devices/rojaflex.c"
+  },
+  {
+    "symbol": "sharp_spc775",
+    "name": "\"Sharp SPC775 weather station\"",
+    "modulation": "FSK_PULSE_PWM",
+    "disabled": "0",
+    "short_width_us": "225",
+    "file": "lib/rtl_433_ESP_433/src/rtl_433/devices/sharp_spc775.c"
+  },
+  {
+    "symbol": "simplisafe_gen3",
+    "name": "\"SimpliSafe Gen 3 Home Security System\"",
+    "modulation": "FSK_PULSE_PCM",
+    "disabled": "0",
+    "short_width_us": "208",
+    "file": "lib/rtl_433_ESP_433/src/rtl_433/devices/simplisafe_gen3.c"
+  },
+  {
+    "symbol": "somfy_iohc",
+    "name": "\"Somfy io-homecontrol\"",
+    "modulation": "FSK_PULSE_PCM",
+    "disabled": "0",
+    "short_width_us": "26",
+    "file": "lib/rtl_433_ESP_433/src/rtl_433/devices/somfy_iohc.c"
+  },
+  {
+    "symbol": "srsmith_pool_srs_2c_tx",
+    "name": "\"SRSmith Pool Light Remote Control SRS-2C-TX (-f 915M)\"",
+    "modulation": "FSK_PULSE_PCM",
+    "disabled": "0",
+    "short_width_us": "100",
+    "file": "lib/rtl_433_ESP_433/src/rtl_433/devices/srsmith_pool_srs_2c_tx.c"
+  },
+  {
+    "symbol": "steelmate",
+    "name": "\"Steelmate TPMS\"",
+    "modulation": "FSK_PULSE_MANCHESTER_ZEROBIT",
+    "disabled": "0",
+    "short_width_us": "50",
+    "file": "lib/rtl_433_ESP_433/src/rtl_433/devices/steelmate.c"
+  },
+  {
+    "symbol": "tfa_14_1504_v2",
+    "name": "\"TFA Dostmann 14.1504.V2 Radio-controlled grill and meat thermometer\"",
+    "modulation": "FSK_PULSE_PCM",
+    "disabled": "0",
+    "short_width_us": "360",
+    "file": "lib/rtl_433_ESP_433/src/rtl_433/devices/tfa_14_1504_v2.c"
+  },
+  {
+    "symbol": "tfa_303196",
+    "name": "\"TFA Dostmann 30.3196 T/H outdoor sensor\"",
+    "modulation": "FSK_PULSE_MANCHESTER_ZEROBIT",
+    "disabled": "0",
+    "short_width_us": "245",
+    "file": "lib/rtl_433_ESP_433/src/rtl_433/devices/tfa_30_3196.c"
+  },
+  {
+    "symbol": "tfa_marbella",
+    "name": "\"TFA Marbella Pool Thermometer\"",
+    "modulation": "FSK_PULSE_PCM",
+    "disabled": "0",
+    "short_width_us": "105",
+    "file": "lib/rtl_433_ESP_433/src/rtl_433/devices/tfa_marbella.c"
+  },
+  {
+    "symbol": "thermopro_tp28b",
+    "name": "\"ThermoPro TP28b Super Long Range Wireless Meat Thermometer for Smoker BBQ Grill\"",
+    "modulation": "FSK_PULSE_PCM",
+    "disabled": "0",
+    "short_width_us": "105",
+    "file": "lib/rtl_433_ESP_433/src/rtl_433/devices/thermopro_tp28b.c"
+  },
+  {
+    "symbol": "thermopro_tp828b",
+    "name": "\"ThermoPro Meat Thermometers",
+    "modulation": "FSK_PULSE_PCM",
+    "disabled": "0",
+    "short_width_us": "102",
+    "file": "lib/rtl_433_ESP_433/src/rtl_433/devices/thermopro_tp82xb.c"
+  },
+  {
+    "symbol": "thermopro_tp829b",
+    "name": "\"ThermoPro Meat Thermometers",
+    "modulation": "FSK_PULSE_PCM",
+    "disabled": "0",
+    "short_width_us": "102",
+    "file": "lib/rtl_433_ESP_433/src/rtl_433/devices/thermopro_tp82xb.c"
+  },
+  {
+    "symbol": "thermopro_tx7b",
+    "name": "\"ThermoPro TX-7B Outdoor Thermometer Hygrometer\"",
+    "modulation": "FSK_PULSE_PCM",
+    "disabled": "0",
+    "short_width_us": "108",
+    "file": "lib/rtl_433_ESP_433/src/rtl_433/devices/thermopro_tx7b.c"
+  },
+  {
+    "symbol": "tpms_abarth124",
+    "name": "\"Abarth 124 Spider TPMS\"",
+    "modulation": "FSK_PULSE_PCM",
+    "disabled": "0",
+    "short_width_us": "52",
+    "file": "lib/rtl_433_ESP_433/src/rtl_433/devices/tpms_abarth124.c"
+  },
+  {
+    "symbol": "tpms_ave",
+    "name": "\"AVE TPMS\"",
+    "modulation": "FSK_PULSE_PCM",
+    "disabled": "0",
+    "short_width_us": "100",
+    "file": "lib/rtl_433_ESP_433/src/rtl_433/devices/tpms_ave.c"
+  },
+  {
+    "symbol": "tpms_bmw",
+    "name": "\"BMW Gen4-Gen5 TPMS and Audi TPMS Pressure Alert",
+    "modulation": "FSK_PULSE_PCM",
+    "disabled": "0",
+    "short_width_us": "25",
+    "file": "lib/rtl_433_ESP_433/src/rtl_433/devices/tpms_bmw.c"
+  },
+  {
+    "symbol": "tpms_bmwg3",
+    "name": "\"BMW Gen2 and Gen3 TPMS\"",
+    "modulation": "FSK_PULSE_PCM",
+    "disabled": "0",
+    "short_width_us": "52",
+    "file": "lib/rtl_433_ESP_433/src/rtl_433/devices/tpms_bmw_g3.c"
+  },
+  {
+    "symbol": "tpms_citroen",
+    "name": "\"Citroen TPMS\"",
+    "modulation": "FSK_PULSE_PCM",
+    "disabled": "0",
+    "short_width_us": "52",
+    "file": "lib/rtl_433_ESP_433/src/rtl_433/devices/tpms_citroen.c"
+  },
+  {
+    "symbol": "tpms_elantra2012",
+    "name": "\"Elantra2012 TPMS\"",
+    "modulation": "FSK_PULSE_PCM",
+    "disabled": "0",
+    "short_width_us": "49",
+    "file": "lib/rtl_433_ESP_433/src/rtl_433/devices/tpms_elantra2012.c"
+  },
+  {
+    "symbol": "tpms_ford",
+    "name": "\"Ford TPMS\"",
+    "modulation": "FSK_PULSE_PCM",
+    "disabled": "0",
+    "short_width_us": "52",
+    "file": "lib/rtl_433_ESP_433/src/rtl_433/devices/tpms_ford.c"
+  },
+  {
+    "symbol": "tpms_hyundai_vdo",
+    "name": "\"Hyundai TPMS (VDO)\"",
+    "modulation": "FSK_PULSE_PCM",
+    "disabled": "0",
+    "short_width_us": "52",
+    "file": "lib/rtl_433_ESP_433/src/rtl_433/devices/tpms_hyundai_vdo.c"
+  },
+  {
+    "symbol": "tpms_jansite",
+    "name": "\"Jansite TPMS Model TY02S\"",
+    "modulation": "FSK_PULSE_PCM",
+    "disabled": "1",
+    "short_width_us": "52",
+    "file": "lib/rtl_433_ESP_433/src/rtl_433/devices/tpms_jansite.c"
+  },
+  {
+    "symbol": "tpms_jansite_solar",
+    "name": "\"Jansite TPMS Model Solar\"",
+    "modulation": "FSK_PULSE_PCM",
+    "disabled": "0",
+    "short_width_us": "51",
+    "file": "lib/rtl_433_ESP_433/src/rtl_433/devices/tpms_jansite_solar.c"
+  },
+  {
+    "symbol": "tpms_kia",
+    "name": "\"Kia TPMS (-s 1000k)\"",
+    "modulation": "FSK_PULSE_PCM",
+    "disabled": "0",
+    "short_width_us": "50",
+    "file": "lib/rtl_433_ESP_433/src/rtl_433/devices/tpms_kia.c"
+  },
+  {
+    "symbol": "tpms_nissan",
+    "name": "\"Nissan TPMS\"",
+    "modulation": "FSK_PULSE_PCM",
+    "disabled": "1",
+    "short_width_us": "120",
+    "file": "lib/rtl_433_ESP_433/src/rtl_433/devices/tpms_nissan.c"
+  },
+  {
+    "symbol": "tpms_pmv107j",
+    "name": "\"PMV-107J (Toyota) TPMS\"",
+    "modulation": "FSK_PULSE_PCM",
+    "disabled": "0",
+    "short_width_us": "100",
+    "file": "lib/rtl_433_ESP_433/src/rtl_433/devices/tpms_pmv107j.c"
+  },
+  {
+    "symbol": "tpms_porsche",
+    "name": "\"Porsche Boxster/Cayman TPMS\"",
+    "modulation": "FSK_PULSE_PCM",
+    "disabled": "0",
+    "short_width_us": "52",
+    "file": "lib/rtl_433_ESP_433/src/rtl_433/devices/tpms_porsche.c"
+  },
+  {
+    "symbol": "tpms_renault",
+    "name": "\"Renault TPMS\"",
+    "modulation": "FSK_PULSE_PCM",
+    "disabled": "0",
+    "short_width_us": "52",
+    "file": "lib/rtl_433_ESP_433/src/rtl_433/devices/tpms_renault.c"
+  },
+  {
+    "symbol": "tpms_renault_0435r",
+    "name": "\"Renault 0435R TPMS\"",
+    "modulation": "FSK_PULSE_PCM",
+    "disabled": "0",
+    "short_width_us": "52",
+    "file": "lib/rtl_433_ESP_433/src/rtl_433/devices/tpms_renault_0435r.c"
+  },
+  {
+    "symbol": "tpms_toyota",
+    "name": "\"Toyota TPMS\"",
+    "modulation": "FSK_PULSE_PCM",
+    "disabled": "0",
+    "short_width_us": "52",
+    "file": "lib/rtl_433_ESP_433/src/rtl_433/devices/tpms_toyota.c"
+  },
+  {
+    "symbol": "tpms_truck",
+    "name": "\"Unbranded SolarTPMS for trucks\"",
+    "modulation": "FSK_PULSE_PCM",
+    "disabled": "0",
+    "short_width_us": "52",
+    "file": "lib/rtl_433_ESP_433/src/rtl_433/devices/tpms_truck.c"
+  },
+  {
+    "symbol": "vevor_7in1",
+    "name": "\"Vevor Wireless Weather Station 7-in-1\"",
+    "modulation": "FSK_PULSE_PCM",
+    "disabled": "0",
+    "short_width_us": "87",
+    "file": "lib/rtl_433_ESP_433/src/rtl_433/devices/vevor_7in1.c"
+  },
+  {
+    "symbol": "homematic_bidcos",
+    "name": "\"HomeMatic BidCoS / eQ-3 (header only",
+    "modulation": "FSK_PULSE_PCM",
+    "disabled": "0",
+    "short_width_us": "100",
+    "file": "lib/rtl_433_ESP_433/src/rtl_433/devices/homematic_bidcos.c"
+  }
+]

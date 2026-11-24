@@ -1,0 +1,7 @@
+# Python-Werkzeuge für Linkra Duo (Flashen und Hilfsskripte)
+#   python3 -m venv .venv && . .venv/bin/activate && pip install -r requirements.txt
+#
+# scripts/deploy_web.py, scripts/tune_matrix.py, scripts/build_web.py: nur Standardbibliothek.
+# esptool: Firmware flashen (docs/FLASHING.md); pyserial: serieller Monitor/esptool.
+esptool==5.1.0
+pyserial==3.5

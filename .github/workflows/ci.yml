@@ -1,0 +1,68 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  firmware:
+    name: Firmware (ESP32-S3, Breadboard)
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - uses: actions/cache@v4
+        with:
+          path: ~/.platformio
+          key: pio-${{ runner.os }}-${{ hashFiles('platformio.ini') }}
+      - name: PlatformIO installieren
+        run: pip install platformio==6.1.19
+      - name: Dummy-secrets.h aus der Vorlage
+        run: cp config/secrets.example.h config/secrets.h
+      - name: Bauen
+        run: pio run -e linkra-s3-breadboard
+      - name: Größe der Firmware
+        run: ls -l .pio/build/linkra-s3-breadboard/firmware.bin
+
+  host-tests:
+    name: Host-Tests (ASan/UBSan)
+    runs-on: ubuntu-latest
+    env:
+      CXXFLAGS: -std=c++17 -g -O1 -fsanitize=address,undefined -fno-sanitize-recover=undefined
+    steps:
+      - uses: actions/checkout@v4
+      - name: ArduinoJson 7.4.2 (für ha_discovery_test)
+        run: git clone --depth 1 --branch v7.4.2 https://github.com/bblanchon/ArduinoJson.git /tmp/ArduinoJson
+      - name: wmbus_test
+        run: c++ $CXXFLAGS -I src tests/wmbus_test.cpp src/rf/wmbus.cpp -o /tmp/wmbus_test && /tmp/wmbus_test
+      - name: rf_event_gate_test
+        run: c++ $CXXFLAGS tests/rf_event_gate_test.cpp -o /tmp/gate_test && /tmp/gate_test
+      - name: ha_discovery_test
+        run: c++ $CXXFLAGS -I /tmp/ArduinoJson/src tests/ha_discovery_test.cpp src/integration/ha_discovery.cpp -o /tmp/ha_test && /tmp/ha_test
+      - name: auth_core_test
+        run: c++ $CXXFLAGS tests/auth_core_test.cpp src/auth/auth_core.cpp -o /tmp/auth_test && /tmp/auth_test
+
+  web:
+    name: Weboberfläche (Build + Tests)
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: web
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+          cache: npm
+          cache-dependency-path: web/package-lock.json
+      - run: npm ci
+      - run: npm run build
+      - name: Tests
+        run: node --test tests

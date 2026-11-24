@@ -1,0 +1,68 @@
+name: Fehlerbericht / Bug report
+description: Etwas funktioniert nicht wie erwartet. / Something does not work as expected.
+labels: ["bug"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Danke für den Bericht! Bitte **keine persönlichen Daten** einfügen: keine WLAN-Namen oder Passwörter,
+        keine IP-/MAC-Adressen, keine Zählernummern oder Funk-IDs deiner Geräte (durch `XXXX` ersetzen).
+        Sicherheitslücken bitte **nicht** hier melden, sondern wie in `SECURITY.md` beschrieben.
+
+        Thanks for reporting! Please **do not include personal data** (Wi-Fi names/passwords, IP/MAC addresses,
+        meter numbers or radio IDs – replace them with `XXXX`). Report security issues as described in `SECURITY.md`.
+  - type: input
+    id: version
+    attributes:
+      label: Firmware-Version / Firmware version
+      description: Steht unter „System“ in der Weboberfläche. / Shown on the "System" page.
+      placeholder: 0.6.0-beta
+    validations:
+      required: true
+  - type: dropdown
+    id: area
+    attributes:
+      label: Bereich / Area
+      options:
+        - 433 MHz Empfang / reception
+        - 868 MHz Empfang / reception
+        - Wireless M-Bus
+        - Decoder (rtl_433)
+        - Gerätedatenbank / device database
+        - Weboberfläche / web UI
+        - MQTT / Home Assistant
+        - WLAN / Wi-Fi
+        - Build / Flashen / flashing
+        - Sonstiges / other
+    validations:
+      required: true
+  - type: textarea
+    id: what
+    attributes:
+      label: Was ist passiert? / What happened?
+    validations:
+      required: true
+  - type: textarea
+    id: expected
+    attributes:
+      label: Was hast du erwartet? / What did you expect?
+    validations:
+      required: true
+  - type: textarea
+    id: steps
+    attributes:
+      label: Schritte zum Nachstellen / Steps to reproduce
+      placeholder: |
+        1. …
+        2. …
+  - type: textarea
+    id: hardware
+    attributes:
+      label: Hardware
+      description: Board, Funkmodule, Antennen, Stromversorgung. / Board, radio modules, antennas, power supply.
+  - type: textarea
+    id: logs
+    attributes:
+      label: Serielles Log / Serial log
+      description: Ausgabe von `pio device monitor` (115200 Baud). Persönliche Daten entfernen. / Remove personal data.
+      render: text

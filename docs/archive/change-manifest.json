@@ -1,0 +1,67 @@
+[
+  {
+    "path": "lib/rtl_433_ESP_433/src/signalDecoder.cpp",
+    "original_sha256": "67e22c309ebdb63fbfc532c4983f4dacd5ebdd0f6fa7b2f4daf672555d6a48a1",
+    "updated_sha256": "7d82efbc90a08c17eadb547d6e8ea37e64f07b6160828487efeed667a0e0918d"
+  },
+  {
+    "path": "src/network/app_web_server.cpp",
+    "original_sha256": "705371397bcddbfd61cf5880735be99898fbc23141402600b5af24a615b8cd04",
+    "updated_sha256": "b1d4e2e0aba869061e2a5cb77a8395e7dc70c9f469cc249d08573cfb491eecdc"
+  },
+  {
+    "path": "src/rf/rf_manager.cpp",
+    "original_sha256": "cc4162d28709e66fea4719e064a61d52db001e146059bb616fc4a9c324e2e73b",
+    "updated_sha256": "67865dfc2ed4a5ebc2a425c99b628e4ac368f8264db1fa46fb9f124a8c9baa41"
+  },
+  {
+    "path": "src/rf/rf_event_gate.h",
+    "original_sha256": null,
+    "updated_sha256": "0874848ecd01ba6623b79899e057e91789cc4dd3f2cbead70c313315b33521c3"
+  },
+  {
+    "path": "web/src/hooks/useAppSSE.js",
+    "original_sha256": "199d744c4b585bc12fd910a2e3857c5df61137d26bd7aeb94b3dc8d400b54572",
+    "updated_sha256": "c36dede331cd7b1aa2a546fc9505762e134ceb2f201eb0b92637719ccf80ba31"
+  },
+  {
+    "path": "web/src/signals/devices.js",
+    "original_sha256": "51584c5bb6badc4e1d1d0db8b81b4ae2a169141691b765db13af074d14d34b53",
+    "updated_sha256": "65a6a42be167a771bbd75fd2d6f6c78dab95679a0a4dc9a3a195e56804db72d9"
+  },
+  {
+    "path": "web/src/utils/rfSignal.js",
+    "original_sha256": null,
+    "updated_sha256": "9d62b673b715e70aff9e1e70ed3859536ff3887969956ada9993a215ff5850fd"
+  },
+  {
+    "path": "web/src/utils/dashboardStatus.js",
+    "original_sha256": null,
+    "updated_sha256": "f5bc4239219fcac78f8cae5a523ef2c8f12a1bd9afe1f780b13e5c57cc14c2db"
+  },
+  {
+    "path": "web/src/App.jsx",
+    "original_sha256": "980785f76f8d4b0c9e0c0941a1c593bf116e347d529ce6d83bdbf909469bc484",
+    "updated_sha256": "94ca32fd7c2e390fe53f767420a4ff865b10575d1494f0dd726aa4fdfd415709"
+  },
+  {
+    "path": "web/tests/rfSignal.test.js",
+    "original_sha256": null,
+    "updated_sha256": "a1de0d6f7a6332137d593f28650adced5432ed026a47e3787c8c669af6b7d54d"
+  },
+  {
+    "path": "web/tests/dashboardStatus.test.js",
+    "original_sha256": null,
+    "updated_sha256": "d990ca0a964885258c748430dcf89c26f385259386658ec8a50927cf01cd14ce"
+  },
+  {
+    "path": "tests/rf_event_gate_test.cpp",
+    "original_sha256": null,
+    "updated_sha256": "218287f2a9ae7f4d247cc88f353ce5d30528c8cb9e9bb18d80b387de96f918f8"
+  },
+  {
+    "path": "platformio.ini",
+    "original_sha256": "6718fe56ba883021fe85eaa22dc8642e8a4d4306f44e36061725060091e339fd",
+    "updated_sha256": "846000626ce2203d70e7d08f76394579d6063cb28093327fa30b7cc803633879"
+  }
+]
