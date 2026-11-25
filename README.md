@@ -44,10 +44,11 @@ und 868 MHz (FSK, wM-Bus).
 - **Nur HTTP:** Web-UI und API sind durch Anmeldung (optional mit 2FA) geschützt, laufen
   aber unverschlüsselt. Nur in einem vertrauenswürdigen Netz betreiben, nicht aus dem
   Internet erreichbar machen.
-- **Offener Setup-Hotspot:** Scheitert die WLAN-Verbindung, startet ein offener Hotspot
-  `Linkra-Duo-Setup` (Web-UI unter `http://192.168.4.1`).
-- **Kein Firmware-Update über das Netz:** Die Partitionstabelle hat nur eine
-  `factory`-Partition. Updates nur per USB (siehe [`docs/FLASHING.md`](docs/FLASHING.md)).
+- **Setup-Hotspot:** Scheitert die WLAN-Verbindung, startet der Hotspot `Linkra-Duo-Setup`
+  (WPA2, Passwort pro Gerät, steht im seriellen Log; Web-UI unter `http://192.168.4.1`).
+- **Firmware-Updates** laufen über das Netz mit automatischem Rollback
+  (`scripts/ota_update.py` oder Weboberfläche). Geräte mit 0.6.x ziehen einmalig per USB
+  auf die OTA-Aufteilung um (siehe [`docs/FLASHING.md`](docs/FLASHING.md), Abschnitt 6).
 - **WLAN-Zugangsdaten** werden beim Bauen aus `config/secrets.h` übernommen.
 - **Nur Breadboard-Hardware:** Die Umgebung `linkra-s3-pcb` ist nicht gepflegt und baut
   derzeit nicht.
@@ -135,8 +136,8 @@ Kurzfassung (Details, Erstinstallation und Wiederherstellung in
 [`docs/FLASHING.md`](docs/FLASHING.md)):
 
 ```bash
-# Firmware (nur die App-Partition):
-esptool --chip esp32s3 --port <PORT> --baud 921600 write_flash 0x10000 .pio/build/linkra-s3-breadboard/firmware.bin
+# Firmware über das Netz (OTA mit automatischem Rollback):
+python3 scripts/ota_update.py linkra-duo.local
 
 # Weboberfläche über das Netz (lässt Datenbank und Einstellungen unberührt):
 LINKRA_HOST=linkra-duo.local python3 scripts/deploy_web.py
@@ -193,7 +194,7 @@ Details: [`docs/auth-api.md`](docs/auth-api.md).
 ├── web/                 Weboberfläche (Vite + Preact + Tailwind), Tests in web/tests
 ├── data/                gebaute Weboberfläche (wird per scripts/deploy_web.py hochgeladen)
 ├── tests/               Host-Tests (C++)
-├── scripts/             deploy_web.py, build_web.py, tune_matrix.py
+├── scripts/             ota_update.py, deploy_web.py, migrate_partitions.py, build_web.py, tune_matrix.py
 ├── docs/                FLASHING.md, auth-api.md, Prüfbericht, Archiv
 └── assets/brand/        Logos
 ```
