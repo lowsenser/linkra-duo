@@ -67,4 +67,5 @@ private:
     
     static void WiFiEventHandler(WiFiEvent_t event, WiFiEventInfo_t info);
     void handleWiFiEvent(WiFiEvent_t event, WiFiEventInfo_t info);
+    static void persistCredentials();
 };

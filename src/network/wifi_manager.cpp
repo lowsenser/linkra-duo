@@ -114,6 +114,24 @@ void WiFiManager::WiFiEventHandler(WiFiEvent_t event, WiFiEventInfo_t info) {
     WiFiManager::getInstance().handleWiFiEvent(event, info);
 }
 
+// Keep working credentials on the device. Release builds from GitHub carry no
+// WiFi credentials, so after an online update the device must not depend on the
+// ones compiled into the image. Runs on every GOT_IP (also after a late reconnect),
+// writes only when something changed.
+void WiFiManager::persistCredentials() {
+    const String ssid = WiFi.SSID(), pass = WiFi.psk();
+    if (ssid.isEmpty() || ssid.length() > 31 || pass.length() > 63) return;
+    WiFiConfig stored = {};
+    if (ConfigManager::getInstance().loadWiFiConfig(stored) && ssid == stored.ssid && pass == stored.password) return;
+    WiFiConfig c = {};
+    strlcpy(c.ssid, ssid.c_str(), sizeof(c.ssid));
+    strlcpy(c.password, pass.c_str(), sizeof(c.password));
+    c.configured = true;
+    c.dhcp = true;
+    Serial.println(ConfigManager::getInstance().saveWiFiConfig(c) ? "[WiFi] Zugangsdaten im Gerät gespeichert"
+                                                                  : "[WiFi] Zugangsdaten speichern fehlgeschlagen");
+}
+
 void WiFiManager::handleWiFiEvent(WiFiEvent_t event, WiFiEventInfo_t info) {
     switch (event) {
         case ARDUINO_EVENT_WIFI_STA_CONNECTED:
@@ -131,6 +149,7 @@ void WiFiManager::handleWiFiEvent(WiFiEvent_t event, WiFiEventInfo_t info) {
             currentMode = WiFiMode::STA_CONNECTED;
             
             startTimeSync();
+            persistCredentials();
 
             // Verbindung erfolgreich - einen evtl. laufenden Setup-AP abschalten.
             if (WiFi.getMode() & WIFI_MODE_AP) {

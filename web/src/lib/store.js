@@ -29,6 +29,7 @@ export const sys = signal(null)                // /api/system
 export const wifi = signal(null)               // /api/wifi/status
 export const rf = signal(null)                 // /api/rf/overview
 export const mqtt = signal(null)               // /api/mqtt
+export const update = signal(null)             // /api/update (GitHub release check)
 export const events = signal([])               // newest first
 export const devices = signal(new Map())
 export const paused = signal(false)
@@ -269,6 +270,12 @@ export const refreshRf = () => sched.kick('rf')
 // polls only for state that has no event yet.
 const rfEvery = () => route.value.page === 'radio' ? 1000 : expert.value ? 2000 : 3000
 const mqttEvery = () => (route.value.page === 'mqtt' || route.value.arg === 'mqtt') ? 5000 : 30000
+const updBusy = () => ['checking', 'downloading', 'installing'].includes(update.value?.state)
+const updateEvery = () => updBusy() ? 2000 : (route.value.page === 'settings' && route.value.arg === 'device') ? 15000 : 600000
+
+async function pollUpdateTask() { update.value = await api('/api/update') }
+/** Refresh update status now */
+export const pollUpdate = () => sched.kick('update')
 
 function markOnline(ok) {
   if (ok) {
@@ -281,6 +288,7 @@ function markOnline(ok) {
 sched.add('rf', pollRf, { every: rfEvery, offset: 0, onResult: markOnline })
 sched.add('sys', async () => { await pollSys(); if (!dbLoaded) await loadDbDevices() }, { every: 15000, offset: 600 })
 sched.add('mqtt', pollMqttTask, { every: mqttEvery, offset: 1800 })
+sched.add('update', pollUpdateTask, { every: updateEvery, offset: 2400 })
 
 let dbLoaded = false
 export async function loadDbDevices() {
@@ -318,10 +326,10 @@ export async function loadDbDevices() {
 // Route or mode change: apply the new intervals at once
 let intervalsKey = ''
 effect(() => {
-  const k = `${rfEvery()}|${mqttEvery()}`
+  const k = `${rfEvery()}|${mqttEvery()}|${updateEvery()}`
   if (k === intervalsKey) return
   intervalsKey = k
-  sched.reschedule('rf'); sched.reschedule('mqtt')
+  sched.reschedule('rf'); sched.reschedule('mqtt'); sched.reschedule('update')
 })
 
 /** Start polls and the event stream (only after sign-in) */

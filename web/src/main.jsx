@@ -9,7 +9,7 @@ import { AuthScreen } from './pages/Auth'
 import { Overview } from './pages/Overview'
 import { Devices } from './pages/Devices'
 import { SettingsPage } from './pages/Settings'
-import { ConnState, LiveBadge, Notice, StaleBanner, Toasts, ErrorBoundary, lazy } from './components/shell'
+import { ConnState, LiveBadge, Notice, StaleBanner, Toasts, ErrorBoundary, lazy, UpdateHint } from './components/shell'
 import logoDark from './assets/logo-dark.webp'
 import logoLight from './assets/logo-light.webp'
 import iconDark from './assets/icon-dark.webp'
@@ -110,6 +110,7 @@ function Shell() {
         <h1 class="text-[15px] font-semibold tracking-tight">{entry[1]}</h1>
         <div class="ml-auto flex items-center gap-3 text-[12px] text-muted">
           <Notice />
+          <UpdateHint />
           <ConnState compact />
           <a href="#settings/account" class="md:hidden icon-btn" aria-label="Konto"><UserRound class="w-4 h-4" /></a>
         </div>

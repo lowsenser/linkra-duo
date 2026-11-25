@@ -31,6 +31,7 @@ public:
     void deviceReleased(const char* key);           // publish discovery for one device
     void deviceWithdrawn(const char* key);          // remove discovery for one device
     void republishDiscovery();                      // all released devices
+    void publishUpdateState();                      // firmware update entity (UpdateCheck)
 
     MqttSettings settings() const;                  // copy (password included; never send to clients)
     // Apply and persist. Empty pass keeps the stored one unless clearPass.
@@ -47,7 +48,7 @@ private:
     static void taskEntry(void* arg);
     static void onEvent(void* arg, const char* base, int32_t id, void* data);
 
-    enum class ItemType : uint8_t { State, Release, Withdraw, AllDiscovery };
+    enum class ItemType : uint8_t { State, Release, Withdraw, AllDiscovery, UpdateState };
     struct Item {
         ItemType type;
         char key[48];

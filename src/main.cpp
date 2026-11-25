@@ -8,6 +8,8 @@
 #include <Arduino.h>
 #include "core/system_init.h"
 #include "core/crash_log.h"
+#include <esp_heap_caps.h>
+#include <mbedtls/platform.h>
 #include "core/supervisor.h"
 
 // OTA rollback: a freshly installed image boots in "pending verify". Arduino would
@@ -18,10 +20,20 @@
 // a plain C++ definition gets a mangled name and silently never overrides it.
 extern "C" bool verifyRollbackLater() { return true; }
 
+// mbedTLS allocates from internal RAM by default (CONFIG_MBEDTLS_INTERNAL_MEM_ALLOC).
+// One TLS session (GitHub update check, MQTT over TLS) takes ~45 KB of it, which
+// pushed the internal heap down to 27 KB. Same as CONFIG_MBEDTLS_EXTERNAL_MEM_ALLOC:
+// PSRAM first, internal only as fallback.
+static void* tlsCalloc(size_t n, size_t size) {
+    void* p = heap_caps_calloc(n, size, MALLOC_CAP_SPIRAM | MALLOC_CAP_8BIT);
+    return p ? p : heap_caps_calloc(n, size, MALLOC_CAP_INTERNAL | MALLOC_CAP_8BIT);
+}
+
 void setup() {
     // Larger malloc()s go to PSRAM (8 MB) so the ~320 KB internal RAM stays
     // available for WiFi, lwIP and task stacks.
     heap_caps_malloc_extmem_enable(512);
+    mbedtls_platform_set_calloc_free(tlsCalloc, heap_caps_free);
 
     Serial.begin(115200);
     CrashLog::install();

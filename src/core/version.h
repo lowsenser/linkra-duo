@@ -9,4 +9,13 @@
 // auto-discovery (only devices released by the user).
 // 0.7.0-beta (2026-11-25): OTA partitions with rollback, WPA2 setup hotspot, P1 robustness
 // (pipeline task, supervisor, RMT watchdog), P3 wM-Bus layers/statistics, rtl_433 tuning.
-#define LINKRA_FW_VERSION "0.7.0-beta"
+// 0.8.0-beta (2026-11-25): update check against GitHub Releases (web UI + HA update entity,
+// one-click install with SHA-256 check), WiFi credentials kept in NVS (release builds carry none).
+#ifndef LINKRA_FW_VERSION
+#define LINKRA_FW_VERSION "0.8.0-beta"
+#endif
+
+// GitHub repository whose releases the update check reads ("owner/name"). Forks change it here.
+#ifndef LINKRA_UPDATE_REPO
+#define LINKRA_UPDATE_REPO "lowsenser/linkra-duo"
+#endif

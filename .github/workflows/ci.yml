@@ -38,7 +38,7 @@ jobs:
       CXXFLAGS: -std=c++17 -g -O1 -fsanitize=address,undefined -fno-sanitize-recover=undefined
     steps:
       - uses: actions/checkout@v4
-      - name: ArduinoJson 7.4.2 (für ha_discovery_test)
+      - name: ArduinoJson 7.4.2 (für ha_discovery_test, update_logic_test)
         run: git clone --depth 1 --branch v7.4.2 https://github.com/bblanchon/ArduinoJson.git /tmp/ArduinoJson
       - name: wmbus_test
         run: c++ $CXXFLAGS -I src tests/wmbus_test.cpp src/rf/wmbus.cpp -o /tmp/wmbus_test && /tmp/wmbus_test
@@ -48,6 +48,8 @@ jobs:
         run: c++ $CXXFLAGS -I /tmp/ArduinoJson/src tests/ha_discovery_test.cpp src/integration/ha_discovery.cpp -o /tmp/ha_test && /tmp/ha_test
       - name: auth_core_test
         run: c++ $CXXFLAGS tests/auth_core_test.cpp src/auth/auth_core.cpp -o /tmp/auth_test && /tmp/auth_test
+      - name: update_logic_test
+        run: c++ $CXXFLAGS -I /tmp/ArduinoJson/src tests/update_logic_test.cpp src/core/update_logic.cpp -o /tmp/upd_test && /tmp/upd_test
 
   web:
     name: Weboberfläche (Build + Tests)

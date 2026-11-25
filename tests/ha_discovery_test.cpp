@@ -139,7 +139,41 @@ static void testState() {
     CHECK(j2["last_seen"].isNull());
 }
 
+static void testUpdate() {
+    const auto c = cfg();
+    auto m = ha::updateDiscovery(c, false);
+    CHECK(m.retain);
+    CHECK(m.topic == "homeassistant/update/linkra_duo_a1b2c3/firmware/config");
+    auto j = parse(m.payload);
+    CHECK(j["device_class"] == "firmware");
+    CHECK(j["state_topic"] == "linkra/update/state");
+    CHECK(j["command_topic"].isNull());
+    CHECK(j["device"]["identifiers"][0] == "linkra_duo_a1b2c3");
+    CHECK(j["availability"][0]["topic"] == "linkra/status");
+    j = parse(ha::updateDiscovery(c, true).payload);
+    CHECK(j["command_topic"] == "linkra/update/install");
+    CHECK(j["payload_install"] == "install");
+
+    ha::UpdateInfo u;
+    u.installed = "0.7.0-beta";
+    auto s = ha::updateState(c, u);
+    CHECK(s.retain && s.topic == "linkra/update/state");
+    j = parse(s.payload);
+    CHECK(j["latest_version"] == "0.7.0-beta");
+    CHECK(j["in_progress"] == false);
+    CHECK(j["update_percentage"].isNull());
+    CHECK(j["release_summary"].isNull());
+    u.latest = "0.7.1-beta"; u.title = "Linkra Duo 0.7.1-beta"; u.releaseUrl = "https://example/r";
+    u.summary = std::string(300, 'x'); u.progress = 40;
+    j = parse(ha::updateState(c, u).payload);
+    CHECK(j["latest_version"] == "0.7.1-beta");
+    CHECK(j["in_progress"] == true);
+    CHECK(j["update_percentage"] == 40);
+    CHECK(std::string(j["release_summary"].as<const char*>()).size() <= 255);
+}
+
 int main() {
+    testUpdate();
     testObjectId();
     testTopics();
     testDeviceDiscoveryTempHum();

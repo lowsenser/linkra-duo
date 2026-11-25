@@ -2,8 +2,8 @@
 // app shell does not re-render every second (review 07 M1).
 import { Component } from 'preact'
 import { useEffect, useState } from 'preact/hooks'
-import { AlertTriangle, RefreshCw, WifiOff, X } from 'lucide-preact'
-import { conn, online, offlineSince, counters, notice, toasts, retryNow } from '../lib/store'
+import { AlertTriangle, RefreshCw, WifiOff, X, Download } from 'lucide-preact'
+import { conn, online, offlineSince, counters, notice, toasts, retryNow, update } from '../lib/store'
 
 /** Three-step status wording (review 07 N14) */
 export function connText(isOnline, sse) {
@@ -27,6 +27,18 @@ export function ConnState({ compact }) {
 export function LiveBadge() {
   const n = counters.value.decoded
   return n > 0 ? <span class="ml-auto text-[10px] num px-1.5 rounded-md bg-ok/15 text-ok" aria-label={`${n} decodierte Telegramme`}>{n}</span> : null
+}
+
+/** Header hint while a firmware update is available or being installed */
+export function UpdateHint() {
+  const u = update.value
+  if (!u || !['available', 'downloading', 'installing'].includes(u.state) || !u.latest) return null
+  const text = u.state === 'available' ? `Update ${u.latest.version}` : `Update ${u.progress ?? 0} %`
+  return (
+    <a href="#settings/device" class="inline-flex items-center gap-1.5 px-2 h-7 rounded-lg bg-warn/15 text-warn font-medium hover:bg-warn/25" title="Firmware-Update verfügbar">
+      <Download class="w-3.5 h-3.5" aria-hidden="true" />{text}
+    </a>
+  )
 }
 
 export function Notice() {

@@ -2,6 +2,7 @@ import { useState } from 'preact/hooks'
 import { Palette, Wifi, Share2, Cpu, Sun, Moon, Monitor, FlaskConical, Sparkles, Search, Lock, Power, RotateCcw, LayoutPanelTop, Terminal, UserRound } from 'lucide-preact'
 import { Card, PageHead, Toggle, KV, Chip } from '../components/ui'
 import { MqttPanel } from './Mqtt'
+import { UpdatePanel } from './Update'
 import { wifi, sys, api, act, toast } from '../lib/store'
 import { themePref, expert, motion, variant } from '../lib/prefs'
 import { route, go } from '../lib/router'
@@ -159,6 +160,7 @@ function DeviceSettings() {
   const s = sys.value
   const reboot = () => confirm('Gateway jetzt neu starten?') && act(api('/api/reboot', { method: 'POST' }), 'Neustart ausgelöst')
   return (
+    <div class="grid xl:grid-cols-2 gap-3 items-start">
     <Card title="Gerät" icon={Cpu}>
       <KV rows={[
         ['Firmware', s && `${s.version} · ${s.build}`], ['Hardware', s?.hardware], ['Chip', s && `${s.chip} · ${s.cpu_mhz} MHz`],
@@ -169,6 +171,8 @@ function DeviceSettings() {
         {expert.value && <button class="btn" onClick={() => go('system')}><Cpu class="w-4 h-4" />Systemdiagnose</button>}
       </div>
     </Card>
+    <UpdatePanel />
+    </div>
   )
 }
 

@@ -7,6 +7,7 @@
 #include "../network/wifi_manager.h"
 #include "../network/app_web_server.h"
 #include "../integration/mqtt_bridge.h"
+#include "../network/update_check.h"
 #include "../rf/rf_manager.h"
 #include "../storage/device_database.h"
 #include "config_manager.h"
@@ -103,6 +104,7 @@ void SystemInit::initSystemTask(void* pvParameters) {
     // und ein Broker eingetragen ist; blockiert den Start nicht.
     Serial.println("[INIT] Step 6/6: MQTT...");
     MqttBridge::getInstance().begin();
+    UpdateCheck::get().begin();
 
     Serial.println("\n====================================");
     
@@ -135,10 +137,17 @@ void SystemInit::initHardware() {
 }
 
 void SystemInit::initWiFi() {
-    // WiFi credentials come from config/secrets.h (not in git)
-    const char* WIFI_SSID = LINKRA_WIFI_SSID;
-    const char* WIFI_PASS = LINKRA_WIFI_PASS;
+    // WiFi credentials: stored in NVS (ConfigManager, set via the web UI or taken
+    // over from the build) take precedence over config/secrets.h. Release builds
+    // from GitHub carry only the placeholder from secrets.example.h, so a device
+    // must never depend on the credentials compiled into the image it runs.
+    static WiFiConfig stored;
+    const bool haveStored = ConfigManager::getInstance().loadWiFiConfig(stored);
+    const bool haveBuiltin = LINKRA_WIFI_SSID[0] && strcmp(LINKRA_WIFI_SSID, "your-ssid") != 0;
+    const char* WIFI_SSID = haveStored ? stored.ssid : LINKRA_WIFI_SSID;
+    const char* WIFI_PASS = haveStored ? stored.password : LINKRA_WIFI_PASS;
     const char* MDNS_NAME = "linkra-duo";  // erreichbar unter linkra-duo.local
+    Serial.printf("[WiFi] Zugangsdaten: %s\n", haveStored ? "gespeichert (NVS)" : haveBuiltin ? "aus dem Build" : "keine");
     
     Serial.printf("[WiFi] Connecting to: %s\n", WIFI_SSID);
 
@@ -177,11 +186,19 @@ void SystemInit::initWiFi() {
         }
         Serial.printf("[WiFi] Scan: %d Netze gesamt\n", n);
         WiFi.scanDelete();
+        // Stored credentials failed: fall back to the ones from the build, if different.
+        if (haveStored && haveBuiltin && strcmp(stored.ssid, LINKRA_WIFI_SSID) != 0) {
+            Serial.println("[WiFi] Versuche Zugangsdaten aus dem Build");
+            WIFI_SSID = LINKRA_WIFI_SSID;
+            WIFI_PASS = LINKRA_WIFI_PASS;
+        }
         WiFi.begin(WIFI_SSID, WIFI_PASS);
+        for (int t = 30; WiFi.status() != WL_CONNECTED && t > 0; t--) vTaskDelay(pdMS_TO_TICKS(500));
     }
 
     if (WiFi.status() == WL_CONNECTED) {
         Serial.printf("[WiFi] Connected! IP: %s\n", WiFi.localIP().toString().c_str());
+        // credentials are stored by WiFiManager on GOT_IP (persistCredentials)
         Serial.printf("[WiFi] RSSI: %d dBm\n", WiFi.RSSI());
         // NTP startet im GOT_IP-Handler von WiFiManager (bei jeder Verbindung).
         Serial.printf("[WiFi] MAC: %s\n", WiFi.macAddress().c_str());

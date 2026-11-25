@@ -1,0 +1,57 @@
+name: Release
+
+# Push a tag "v<version>" (must equal LINKRA_FW_VERSION in src/core/version.h) to build
+# the firmware and publish it as a GitHub release. Devices find it through their update
+# check (src/network/update_check.h): assets firmware.bin + firmware.bin.sha256.
+# Tags with a "-" (e.g. v0.8.0-beta) become pre-releases; devices running a pre-release
+# are offered pre-releases, devices on a final version only final releases.
+#
+# Release builds contain no WiFi credentials (secrets.example.h); devices keep theirs in NVS.
+
+on:
+  push:
+    tags: ["v*"]
+
+permissions:
+  contents: write
+
+jobs:
+  release:
+    name: Firmware bauen und veröffentlichen
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - uses: actions/cache@v4
+        with:
+          path: ~/.platformio
+          key: pio-${{ runner.os }}-${{ hashFiles('platformio.ini') }}
+      - name: PlatformIO installieren
+        run: pip install platformio==6.1.19
+      - name: Tag gegen Firmware-Version prüfen
+        run: |
+          V=$(sed -n 's/^#define LINKRA_FW_VERSION "\(.*\)"$/\1/p' src/core/version.h)
+          echo "Firmware-Version: $V, Tag: $GITHUB_REF_NAME"
+          if [ "v$V" != "$GITHUB_REF_NAME" ]; then
+            echo "::error::Tag $GITHUB_REF_NAME passt nicht zu LINKRA_FW_VERSION $V"
+            exit 1
+          fi
+      - name: Dummy-secrets.h aus der Vorlage
+        run: cp config/secrets.example.h config/secrets.h
+      - name: Bauen
+        run: pio run -e linkra-s3-breadboard
+      - name: Dateien und Prüfsumme
+        run: |
+          mkdir dist
+          cp .pio/build/linkra-s3-breadboard/firmware.bin dist/
+          cd dist && sha256sum firmware.bin > firmware.bin.sha256 && cat firmware.bin.sha256
+      - name: Release anlegen
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          PRE=""
+          case "$GITHUB_REF_NAME" in *-*) PRE="--prerelease" ;; esac
+          gh release create "$GITHUB_REF_NAME" dist/firmware.bin dist/firmware.bin.sha256 \
+            --verify-tag --title "Linkra Duo ${GITHUB_REF_NAME#v}" --generate-notes $PRE

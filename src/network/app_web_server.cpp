@@ -8,6 +8,7 @@
 #include "../rf/rf_manager.h"
 #include "../storage/device_database.h"
 #include "../integration/mqtt_bridge.h"
+#include "update_check.h"
 #include "../core/crash_log.h"
 #include <LittleFS.h>
 #include "signalDecoder.h"
@@ -431,6 +432,33 @@ void LinkraWebServer::setupRoutes() {
     // GET  /api/mqtt/devices  -> freigegebene Geräte
     // POST /api/mqtt/device   -> {"device_key":"Nexus-TH_160","enabled":true}
     // Specific routes first: AsyncWebServer matches "/api/mqtt" also as a prefix of "/api/mqtt/...".
+    // Firmware update check (GitHub Releases), see src/network/update_check.h
+    //   GET  /api/update            -> status
+    //   POST /api/update/check      -> check now
+    //   POST /api/update/install    -> install the release found (202, progress via GET)
+    //   POST /api/update/settings   -> {"auto_check":bool,"ha_install":bool}
+    server.on("/api/update/check", HTTP_POST, [](AsyncWebServerRequest* request) {
+        String err;
+        if (!UpdateCheck::get().requestCheck(err)) { AuthHttp::sendError(request, 409, "busy", err.c_str()); return; }
+        request->send(202, "application/json", UpdateCheck::get().statusJson());
+    });
+    server.on("/api/update/install", HTTP_POST, [](AsyncWebServerRequest* request) {
+        String err;
+        if (!UpdateCheck::get().requestInstall(err)) { AuthHttp::sendError(request, 409, "not_possible", err.c_str()); return; }
+        request->send(202, "application/json", UpdateCheck::get().statusJson());
+    });
+    server.on("/api/update/settings", HTTP_POST, [](AsyncWebServerRequest* request, JsonVariant& json) {
+        JsonObject doc = json.as<JsonObject>();
+        UpdateCheck& u = UpdateCheck::get();
+        const bool autoCheck = doc["auto_check"].is<bool>() ? doc["auto_check"].as<bool>() : u.autoCheck();
+        const bool haInstall = doc["ha_install"].is<bool>() ? doc["ha_install"].as<bool>() : u.haInstall();
+        u.setSettings(autoCheck, haInstall);
+        request->send(200, "application/json", u.statusJson());
+    });
+    server.on("/api/update", HTTP_GET, [](AsyncWebServerRequest* request) {
+        request->send(200, "application/json", UpdateCheck::get().statusJson());
+    });
+
     server.on("/api/diag/crash", HTTP_GET, [](AsyncWebServerRequest* request) {
         request->send(200, "application/json", CrashLog::json());
     });
@@ -1227,7 +1255,7 @@ void LinkraWebServer::handleOTA(AsyncWebServerRequest* request, const String& fi
             st->status = 415;
             return;
         }
-        if (Update.isRunning()) { st->status = 409; return; }
+        if (Update.isRunning() || UpdateCheck::get().busy()) { st->status = 409; return; }
         if (!Update.begin(UPDATE_SIZE_UNKNOWN, U_FLASH)) {
             Update.printError(Serial);
             st->status = 500;

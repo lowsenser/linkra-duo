@@ -18,7 +18,7 @@ nur einer `factory`-Partition) müssen **einmalig per USB umziehen**, siehe Absc
 > neben Bootloader und Partitionstabelle auch `boot_app0.bin` an `0xe000`. Diese Adresse liegt
 > mit der aktuellen Partitionstabelle **im NVS-Bereich** (`0x9000`–`0xEFFF`, dort liegen
 > Einstellungen, MQTT-Zugang und Anmeldedaten). Updates per Netzwerk einspielen oder per USB
-> wie in Abschnitt 1b.
+> wie in Abschnitt 1c.
 
 ## Speicheraufteilung (16 MB Flash)
 
@@ -28,8 +28,8 @@ nur einer `factory`-Partition) müssen **einmalig per USB umziehen**, siehe Absc
 | Partitionstabelle | `0x8000` | 0x1000 | `partitions.bin` | nur Erstinstallation |
 | `nvs` | `0x9000` | 0x6000 | Einstellungen (NVS) | **nie** |
 | `phy_init` | `0xF000` | 0x1000 | Funkkalibrierung | nie |
-| `ota_0` | `0x10000` | 0x300000 | Firmware, Slot 0 | per OTA automatisch, per USB siehe 1b |
-| `otadata` | `0x310000` | 0x2000 | welcher Slot startet, Rollback-Zustand | nur löschen (1b) |
+| `ota_0` | `0x10000` | 0x300000 | Firmware, Slot 0 | per OTA automatisch, per USB siehe 1c |
+| `otadata` | `0x310000` | 0x2000 | welcher Slot startet, Rollback-Zustand | nur löschen (1c) |
 | `coredump` | `0x312000` | 0xE000 | Absturzabbild | nie |
 | `spiffs` (LittleFS) | `0x320000` | 0x9E0000 | Web-UI, Gerätedatenbank, Konfiguration | **nie** (Web-UI nur per `deploy_web.py`) |
 | `ota_1` | `0xD00000` | 0x300000 | Firmware, Slot 1 | per OTA automatisch |
@@ -58,7 +58,27 @@ kurz drücken, BOOT loslassen. Nach dem Flashen einmal RESET drücken.
 
 ## 1. Firmware-Update
 
-### 1a. Über das Netzwerk (Normalfall)
+### 1a. Von GitHub (veröffentlichte Versionen)
+
+Das Gerät prüft einmal täglich die Releases von `LINKRA_UPDATE_REPO` (`src/core/version.h`,
+Standard `lowsenser/linkra-duo`) und zeigt neue Versionen unter **Einstellungen → Gerät**
+(und in Home Assistant als Update-Entität). „Jetzt installieren“ lädt `firmware.bin`,
+vergleicht sie mit `firmware.bin.sha256` aus demselben Release und schaltet erst dann um.
+Die Weboberfläche wird dabei **nicht** erneuert (Abschnitt 2).
+
+**Release veröffentlichen** (Maintainer): `LINKRA_FW_VERSION` und `CHANGELOG.md`
+anpassen, committen, dann
+
+```bash
+git tag v0.8.0-beta && git push origin v0.8.0-beta
+```
+
+Der Workflow `release.yml` prüft, dass Tag und `LINKRA_FW_VERSION` übereinstimmen, baut
+die Firmware (ohne WLAN-Zugangsdaten) und legt das Release mit Prüfsumme an. Tags mit
+Bindestrich (`-beta`, `-rc.1`) werden Pre-Releases; Geräte mit einer Pre-Release-Version
+bekommen auch Pre-Releases angeboten, Geräte mit einer finalen Version nur finale.
+
+### 1b. Eigener Build über das Netzwerk
 
 ```bash
 pio run -e linkra-s3-breadboard
@@ -76,7 +96,7 @@ zurück – ein kaputtes Update braucht also kein USB-Kabel.
 
 Nur App-Images (`firmware.bin`) werden angenommen, Dateisystem-Abbilder lehnt das Gerät ab.
 
-### 1b. Per USB (wenn das Netz nicht geht)
+### 1c. Per USB (wenn das Netz nicht geht)
 
 Schreibt die Firmware in Slot 0 und löscht `otadata`, damit garantiert Slot 0 startet
 (sonst liefe nach einem früheren OTA-Update weiter Slot 1). NVS und LittleFS bleiben
@@ -124,7 +144,9 @@ esptool --chip esp32s3 --port <PORT> --baud 921600 write_flash \
 
 3. Board neu starten. Die Firmware formatiert das leere LittleFS beim ersten Start selbst.
    Ohne `otadata` startet Slot 0 (`ota_0`).
-4. WLAN: Die Zugangsdaten kommen aus `config/secrets.h` (zur Bauzeit). Scheitert die
+4. WLAN: Beim ersten Start kommen die Zugangsdaten aus `config/secrets.h` (zur Bauzeit);
+   nach der ersten erfolgreichen Verbindung speichert das Gerät sie selbst und nutzt
+   danach die gespeicherten (auch nach Updates aus GitHub-Releases). Scheitert die
    Verbindung, startet der Hotspot `Linkra-Duo-Setup` (WPA2, `http://192.168.4.1`). Das
    Passwort erzeugt jedes Gerät beim ersten Start selbst; es steht im seriellen Log
    (`[WiFi] Setup AP started …`) und nach der Anmeldung unter **Einstellungen → WLAN**.
@@ -192,4 +214,4 @@ python3 scripts/migrate_partitions.py flash build/lfs_new.bin
 - **Zurück zum alten Stand**, falls etwas schiefgeht:
   `esptool --chip esp32s3 --port <PORT> write-flash 0 backups/s3_full_<Zeit>.bin`
 
-Danach laufen alle weiteren Updates über das Netzwerk (Abschnitt 1a).
+Danach laufen alle weiteren Updates über das Netzwerk (Abschnitt 1a/1b).

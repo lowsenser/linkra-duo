@@ -81,6 +81,57 @@ std::string deviceName(const Device& d) {
     return name;
 }
 
+namespace {
+void addBridgeDevice(JsonObject o, const Config& c) {
+    JsonObject dev = o["device"].to<JsonObject>();
+    dev["identifiers"].to<JsonArray>().add(c.nodeId);
+    dev["name"] = c.nodeName;
+    dev["manufacturer"] = "Linkra";
+    dev["model"] = "Linkra Duo";
+    if (!c.swVersion.empty()) dev["sw_version"] = c.swVersion;
+}
+}  // namespace
+
+std::string updateStateTopic(const Config& c) { return c.baseTopic + "/update/state"; }
+std::string updateCommandTopic(const Config& c) { return c.baseTopic + "/update/install"; }
+
+Message updateDiscovery(const Config& c, bool allowInstall) {
+    JsonDocument doc;
+    doc["name"] = "Firmware";
+    doc["unique_id"] = c.nodeId + "_firmware";
+    doc["object_id"] = c.nodeId + "_firmware";
+    doc["device_class"] = "firmware";
+    doc["entity_category"] = "config";
+    doc["state_topic"] = updateStateTopic(c);
+    if (allowInstall) {
+        doc["command_topic"] = updateCommandTopic(c);
+        doc["payload_install"] = "install";
+    }
+    addAvailability(doc.as<JsonObject>(), c);
+    addBridgeDevice(doc.as<JsonObject>(), c);
+    return {c.discoveryPrefix + "/update/" + c.nodeId + "/firmware/config", serialize(doc), true};
+}
+
+Message updateState(const Config& c, const UpdateInfo& u) {
+    JsonDocument doc;
+    doc["installed_version"] = u.installed;
+    doc["latest_version"] = u.latest.empty() ? u.installed : u.latest;
+    if (!u.title.empty()) doc["title"] = u.title;
+    if (!u.summary.empty()) {
+        std::string s = u.summary;
+        if (s.size() > 255) {
+            size_t cut = 252;
+            while (cut > 0 && (s[cut] & 0xC0) == 0x80) cut--;
+            s = s.substr(0, cut) + "…";
+        }
+        doc["release_summary"] = s;
+    }
+    if (!u.releaseUrl.empty()) doc["release_url"] = u.releaseUrl;
+    doc["in_progress"] = u.progress >= 0;
+    if (u.progress >= 0) doc["update_percentage"] = u.progress;
+    return {updateStateTopic(c), serialize(doc), true};
+}
+
 Message bridgeDiscovery(const Config& c) {
     JsonDocument doc;
     doc["name"] = "Verbindung";
@@ -91,12 +142,7 @@ Message bridgeDiscovery(const Config& c) {
     doc["state_topic"] = statusTopic(c);
     doc["payload_on"] = "online";
     doc["payload_off"] = "offline";
-    JsonObject dev = doc["device"].to<JsonObject>();
-    dev["identifiers"].to<JsonArray>().add(c.nodeId);
-    dev["name"] = c.nodeName;
-    dev["manufacturer"] = "Linkra";
-    dev["model"] = "Linkra Duo";
-    if (!c.swVersion.empty()) dev["sw_version"] = c.swVersion;
+    addBridgeDevice(doc.as<JsonObject>(), c);
     return {c.discoveryPrefix + "/binary_sensor/" + c.nodeId + "/connectivity/config", serialize(doc), true};
 }
 

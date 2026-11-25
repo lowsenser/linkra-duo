@@ -26,7 +26,7 @@ Fernbedienungen und Verbrauchszählern empfängt, dekodiert und im Heimnetz bere
 lokal, ohne Cloud. Zwei getrennte Funkmodule hören gleichzeitig auf 433 MHz (OOK/FSK)
 und 868 MHz (FSK, wM-Bus).
 
-## Funktionen (Stand 0.6.0-beta)
+## Funktionen (Stand 0.8.0-beta)
 
 | Bereich | Stand |
 |---|---|
@@ -37,6 +37,7 @@ und 868 MHz (FSK, wM-Bus).
 | Gerätedatenbank | SQLite auf LittleFS; neue Geräte erst nach zweitem Empfang innerhalb 15 min (Phantom-Filter); Reparatur beschädigter Datenbanken |
 | Weboberfläche | Preact + Tailwind: Übersicht, Live-Ansicht, Geräte, Funk/Profile, MQTT, System, Standard- und Expertenmodus |
 | Home Assistant | MQTT mit Auto-Discovery, nur vom Nutzer freigegebene Geräte (Temperatur, Feuchte, Batterie, Signalstärke, zuletzt gesehen) |
+| Updates | Firmware übers Netz mit automatischem Rollback; tägliche Prüfung auf neue Releases auf GitHub (abschaltbar), Installation mit einem Klick inkl. SHA-256-Prüfung, auch als Update-Entität in Home Assistant |
 | Werkzeuge | Roh-Mitschnitt im rtl_433-Pulsformat, Wetterstations-Suche, A/B-Tuning (`scripts/tune_matrix.py`) |
 
 ### Bekannte Einschränkungen
@@ -46,10 +47,16 @@ und 868 MHz (FSK, wM-Bus).
   Internet erreichbar machen.
 - **Setup-Hotspot:** Scheitert die WLAN-Verbindung, startet der Hotspot `Linkra-Duo-Setup`
   (WPA2, Passwort pro Gerät, steht im seriellen Log; Web-UI unter `http://192.168.4.1`).
-- **Firmware-Updates** laufen über das Netz mit automatischem Rollback
-  (`scripts/ota_update.py` oder Weboberfläche). Geräte mit 0.6.x ziehen einmalig per USB
-  auf die OTA-Aufteilung um (siehe [`docs/FLASHING.md`](docs/FLASHING.md), Abschnitt 6).
-- **WLAN-Zugangsdaten** werden beim Bauen aus `config/secrets.h` übernommen.
+- **Firmware-Updates** laufen über das Netz mit automatischem Rollback (Weboberfläche,
+  Update von GitHub oder `scripts/ota_update.py`). Ein Update von GitHub erneuert nur die
+  Firmware, nicht die Weboberfläche (die liegt im Dateisystem, siehe `deploy_web.py`).
+  Geräte mit 0.6.x ziehen einmalig per USB auf die OTA-Aufteilung um (siehe
+  [`docs/FLASHING.md`](docs/FLASHING.md), Abschnitt 6).
+- **Update-Prüfung:** Das Gerät fragt einmal täglich die Release-Liste auf GitHub ab
+  (dabei sieht GitHub die IP-Adresse). Abschaltbar unter Einstellungen → Gerät;
+  installiert wird nie automatisch.
+- **WLAN-Zugangsdaten** stehen beim ersten Start aus `config/secrets.h` zur Verfügung und
+  werden nach der ersten Verbindung im Gerät gespeichert.
 - **Nur Breadboard-Hardware:** Die Umgebung `linkra-s3-pcb` ist nicht gepflegt und baut
   derzeit nicht.
 - Verschlüsselte wM-Bus-Telegramme (AES, Mode 5/7) werden nicht entschlüsselt.
@@ -123,6 +130,8 @@ c++ -std=c++17 -fsanitize=address,undefined -I src tests/wmbus_test.cpp src/rf/w
 c++ -std=c++17 -fsanitize=address,undefined tests/rf_event_gate_test.cpp -o /tmp/gate_test && /tmp/gate_test
 c++ -std=c++17 -fsanitize=address,undefined -I .pio/libdeps/linkra-s3-breadboard/ArduinoJson/src \
     tests/ha_discovery_test.cpp src/integration/ha_discovery.cpp -o /tmp/ha_test && /tmp/ha_test
+c++ -std=c++17 -fsanitize=address,undefined -I .pio/libdeps/linkra-s3-breadboard/ArduinoJson/src \
+    tests/update_logic_test.cpp src/core/update_logic.cpp -o /tmp/upd_test && /tmp/upd_test
 ```
 
 ## Flashen und Web-Deploy

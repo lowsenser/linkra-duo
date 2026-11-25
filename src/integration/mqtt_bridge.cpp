@@ -2,6 +2,7 @@
 #include "ha_discovery.h"
 #include "../core/version.h"
 #include "../storage/device_database.h"
+#include "../network/update_check.h"
 
 #include <ArduinoJson.h>
 #include <Preferences.h>
@@ -191,6 +192,8 @@ void MqttBridge::onEvent(void* arg, const char*, int32_t id, void* data) {
         esp_mqtt_client_publish(ev->client, st.c_str(), "online", 0, 1, 1);
         const String ha = s.discoveryPrefix + "/status";
         esp_mqtt_client_subscribe_single(ev->client, ha.c_str(), 0);
+        const String inst = s.baseTopic + "/update/install";
+        esp_mqtt_client_subscribe_single(ev->client, inst.c_str(), 1);
         Item it = {};
         it.type = ItemType::AllDiscovery;
         self->enqueue(it);
@@ -211,6 +214,15 @@ void MqttBridge::onEvent(void* arg, const char*, int32_t id, void* data) {
             Item it = {};
             it.type = ItemType::AllDiscovery;
             self->enqueue(it);
+        }
+        // Install button of the HA update entity (only honoured if allowed in the web UI)
+        const String inst = s.baseTopic + "/update/install";
+        if (ev->topic_len == (int)inst.length() && !strncmp(ev->topic, inst.c_str(), ev->topic_len) &&
+            ev->data_len == 7 && !strncmp(ev->data, "install", 7)) {
+            String err;
+            if (!UpdateCheck::get().haInstall()) Serial.println("[MQTT] Update aus Home Assistant ist nicht erlaubt");
+            else if (!UpdateCheck::get().requestInstall(err)) Serial.printf("[MQTT] Update nicht gestartet: %s\n", err.c_str());
+            else Serial.println("[MQTT] Update aus Home Assistant gestartet");
         }
         break;
     }
@@ -293,6 +305,13 @@ void MqttBridge::republishDiscovery() {
     enqueue(it);
 }
 
+void MqttBridge::publishUpdateState() {
+    if (!cfg.enabled || !connected) return;
+    Item it = {};
+    it.type = ItemType::UpdateState;
+    enqueue(it);
+}
+
 void MqttBridge::taskEntry(void* arg) { static_cast<MqttBridge*>(arg)->taskLoop(); }
 
 void MqttBridge::taskLoop() {
@@ -331,7 +350,13 @@ void MqttBridge::taskLoop() {
         case ItemType::AllDiscovery: {
             std::vector<MqttDeviceInfo> list;
             DeviceDatabase::getInstance().getMqttDevices(list);
-            if (it.type == ItemType::AllDiscovery) msgs.push_back(ha::bridgeDiscovery(hc));
+            if (it.type == ItemType::AllDiscovery) {
+                msgs.push_back(ha::bridgeDiscovery(hc));
+                msgs.push_back(ha::updateDiscovery(hc, UpdateCheck::get().haInstall()));
+                ha::UpdateInfo u;
+                UpdateCheck::get().fillHaInfo(u);
+                msgs.push_back(ha::updateState(hc, u));
+            }
             for (const auto& d : list) {
                 if (it.type == ItemType::Release && d.key != it.key) continue;
                 ha::Device hd;
@@ -349,6 +374,12 @@ void MqttBridge::taskLoop() {
         case ItemType::Withdraw:
             msgs = ha::deviceRemoval(hc, it.key);
             break;
+        case ItemType::UpdateState: {
+            ha::UpdateInfo u;
+            UpdateCheck::get().fillHaInfo(u);
+            msgs.push_back(ha::updateState(hc, u));
+            break;
+        }
         }
         for (const auto& m : msgs) {
             const int qos = m.retain ? 1 : 0;

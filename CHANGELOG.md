@@ -5,6 +5,48 @@ Alle nennenswerten Änderungen an Linkra Duo. Format angelehnt an
 [Semantic Versioning](https://semver.org/lang/de/). Die Hardware-Revision (A0.1 = Breadboard)
 wird getrennt von der Firmware-Version geführt.
 
+## 0.8.0-beta – 2026-11-25
+
+### Hinzugefügt
+- **Update-Prüfung gegen GitHub Releases** (`src/network/update_check.h`): einmal täglich
+  (erste Prüfung ~3 min nach dem Start) und auf Knopfdruck; abschaltbar. Pre-Releases werden
+  nur angeboten, solange eine Pre-Release-Version läuft. Anzeige unter **Einstellungen →
+  Gerät** und als Hinweis in der Kopfzeile.
+- **Installation mit einem Klick**: Download von `firmware.bin` per HTTPS, Vergleich mit der
+  SHA-256-Prüfsumme `firmware.bin.sha256` aus demselben Release, erst dann Umschalten und
+  Neustart; danach greift der Rollback.
+- **Home Assistant**: Update-Entität „Firmware“ am Linkra-Duo-Gerät (MQTT). „Installieren“
+  aus HA nur, wenn in der Weboberfläche erlaubt (Standard: aus).
+- API `GET /api/update`, `POST /api/update/check`, `/install`, `/settings`.
+- Workflow `.github/workflows/release.yml`: Tag `v<Version>` baut die Firmware und legt das
+  Release mit Prüfsumme an (Tag muss zu `LINKRA_FW_VERSION` passen).
+- Host-Test `tests/update_logic_test.cpp` (Versionsvergleich nach SemVer, Release-Auswahl,
+  Prüfsummendatei).
+
+### Geändert
+- **WLAN-Zugangsdaten werden im Gerät gespeichert** (NVS, bei jeder erfolgreichen
+  Verbindung) und beim Start bevorzugt; `config/secrets.h` dient nur noch als Erstwert.
+  Release-Builds enthalten keine Zugangsdaten.
+- mbedTLS legt seine Puffer im PSRAM an: eine TLS-Verbindung drückte den internen Heap
+  vorher auf 27 KB, jetzt bleiben über 60 KB frei.
+
+## 0.7.0-beta – 2026-11-25
+
+### Hinzugefügt
+- **OTA-Partitionen** (`ota_0`/`ota_1`) mit **automatischem Rollback**: ein neues Image muss
+  90 s mit WLAN laufen, sonst startet beim nächsten Reset wieder das vorige.
+- `scripts/ota_update.py` (Update übers Netz), `scripts/migrate_partitions.py` (einmaliger
+  Umzug von 0.6.x per USB), gemeinsamer Login in `scripts/linkra_client.py`.
+- Setup-Hotspot mit WPA2 und gerätespezifischem Passwort.
+- Supervisor mit Heap- und Stack-Telemetrie, RMT-Überwachung, WLAN-Wiederverbindung mit
+  Backoff und einmaliger PHY-Neukalibrierung.
+- wM-Bus: DLL/ELL/AFL/TPL-Schichten, Fehlerstatistik, Referenzprofil `wmbus-ref`.
+
+### Behoben
+- Heap-Korruption durch Pufferüberlauf in `tmpnam` der SQLite-VFS (Absturz beim Start).
+- Stacküberlauf im `ipc0`-Task bei der 868-MHz-Initialisierung.
+- Plattform fest auf pioarduino 55.03.36 (CI scheiterte an „stable“ = 61.04.00).
+
 ## 0.6.0-beta – 2026-11-24
 
 Erstes öffentliches Release.
