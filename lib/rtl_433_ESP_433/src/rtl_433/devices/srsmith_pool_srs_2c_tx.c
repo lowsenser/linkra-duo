@@ -166,4 +166,5 @@ r_device const srsmith_pool_srs_2c_tx = {
         .reset_limit = 4096,
         .decode_fn   = &srsmith_pool_srs_2c_tx_decode,
         .fields      = output_fields,
+        .disabled    = 1, // LINKRA: US-only frequency (315/345/915 MHz), never received here (review 03)
 };

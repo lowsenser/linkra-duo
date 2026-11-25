@@ -101,5 +101,5 @@ r_device const twogig_key2e = {
         .reset_limit = 408,
         .decode_fn   = &twogig_key2e_decode,
         .fields      = output_fields,
-        .disabled    = 1, // payload undecoded, see issue #2584
+        .disabled    = 1, // LINKRA: US-only frequency (315/345/915 MHz), never received here (review 03)
 };

@@ -599,5 +599,12 @@ R_API size_t data_print_jsons(data_t *data, char *dst, size_t len)
 
     format_jsons_object(&jsons.output, data, NULL);
 
+    // LINKRA: a full buffer means a truncated, invalid JSON object; report it instead
+    // of handing it on silently (review 03 M4). Caller sees an empty string.
+    if (len && jsons.msg.left <= 1) {
+        fprintf(stderr, "data_print_jsons: buffer too small (%u bytes), event dropped\n", (unsigned)len);
+        dst[0] = '\0';
+        return 0;
+    }
     return len - jsons.msg.left;
 }

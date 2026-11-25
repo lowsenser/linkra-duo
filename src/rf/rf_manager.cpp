@@ -49,6 +49,7 @@ static inline void clearTrainSlot(pulse_data_t& t, int upto) {   // ISR relies o
 #include "../core/event_bus.h"
 #include "../storage/device_database.h"
 #include "../integration/mqtt_bridge.h"
+#include "../core/supervisor.h"
 #include <ArduinoJson.h>
 
 // Include signalDecoder for processSignal() and currentSignalIs868 flag
@@ -88,7 +89,7 @@ volatile int8_t RFManager::rx868_freqEst = 0;
 static rtl_433_ESP rf433;
 
 // Shared callback buffer (decoder task is single-threaded, one at a time)
-static char msgBuffer[RTL433_JSON_BUFFER];
+static char* msgBuffer = nullptr;   // RTL433_JSON_BUFFER bytes in PSRAM
 
 RFManager& RFManager::getInstance() {
     static RFManager inst;
@@ -104,7 +105,6 @@ void RFManager::begin() {
     Serial.println("[RF] Initializing dual CC1101 modules...");
     
     cacheMutex = xSemaphoreCreateMutex();
-    historyMutex = xSemaphoreCreateMutex();
     radioMutex = xSemaphoreCreateMutex();
     RfHunt::get().begin();
     
@@ -137,6 +137,11 @@ void RFManager::begin() {
     rx868_tagFreqHz = RX_PROFILES[h868].freqMHz * 1e6f;
     rx868_pulseTag = rxProfileTag(h868);
     rx868_minPulseUs = RX_PROFILES[h868].minPulseUs;
+    pipelineMutex = xSemaphoreCreateMutex();
+    pipeQueue = xQueueCreate(24, sizeof(PipeItem));
+    // Processing task for wM-Bus telegrams: internal-RAM stack (it reaches SQLite,
+    // i.e. flash writes), below the receive tasks, same core as the decoder.
+    xTaskCreatePinnedToCore(pipelineTaskFunc, "rfPipe", 12288, this, 2, &pipelineTaskHandle, 1);
     xTaskCreatePinnedToCore(wmbusTaskFunc, "wmbus", 6144, this, 22, &wmbusTaskHandle, 1);
     applyHomeProfiles();  // write home configs (they differ from the init defaults)
     // Priority 3: above the rtl_433 decoder (2) on core 1, which otherwise starved
@@ -169,6 +174,14 @@ void RFManager::initModule433() {
 #endif
     rtl_433_ESP::externalCapture = !LINKRA_433_DUAL_CAPTURE;
     rf433.initReceiver(CC1101_GDO0_433, RF_MODULE_FREQUENCY);
+    if (rtl_433_ESP::radioError) {
+        // Module missing or not answering: keep booting (web UI, 868, MQTT stay
+        // usable) instead of hanging in the library's old while(true).
+        Serial.println("[RF] Module 433: NICHT BEREIT (Funkmodul antwortet nicht) – 433 deaktiviert");
+        mod433.moduleOk = false;
+        mod433.receiving = false;
+        return;
+    }
     rf433.enableReceiver();     // no GPIO interrupt with externalCapture, just _enabledReceiver
     if (!Rx433Rmt::begin(CC1101_GDO0_433)) {
         Serial.println("[RF] 433: RMT capture failed - falling back to the GPIO interrupt");
@@ -177,12 +190,18 @@ void RFManager::initModule433() {
     }
     
     // Set unified callback — reads currentSignalIs868 flag from signalDecoder
-    rf433.setCallback(rtl433Callback, msgBuffer, sizeof(msgBuffer));
+    if (!msgBuffer) msgBuffer = (char*)heap_caps_calloc(1, RTL433_JSON_BUFFER, MALLOC_CAP_SPIRAM);
+    rf433.setCallback(rtl433Callback, msgBuffer, RTL433_JSON_BUFFER);
     
     // Create a dedicated task to call rf433.loop() — this is the BRIDGE
     // that moves completed pulse trains from the ISR ring buffer to the
     // decoder queue. Without this, 433 signals are captured but never decoded!
     // (The library's ReceiverTask only does RSSI monitoring + signal detection.)
+    // Only the GPIO-ISR fallback needs it: RMT capture hands trains to the decoder
+    // itself, so skip the 1-ms poll task and free the ISR buffers (review 02 B12).
+    if (rtl_433_ESP::externalCapture) {
+        rtl_433_ESP::releaseIsrBuffers();
+    } else {
     xTaskCreatePinnedToCore(
         rf433LoopTask,
         "rf433Loop",
@@ -192,6 +211,7 @@ void RFManager::initModule433() {
         &mod433.loopTaskHandle,
         0                          // Core 0 (same as receiver)
     );
+    }
     
     mod433.moduleOk = true;
     mod433.receiving = true;
@@ -764,15 +784,9 @@ void RFManager::rx868ReceiverTask(void* pvParameters) {
                 }
             }
             
-            // CC1101 deaf workaround — restart receiver every hour
-            static unsigned long lastDeafCheck = millis();
-            if (millis() - lastDeafCheck > 3600000) {
-                lastDeafCheck = millis();
-                if (self->mod868.radio) {
-                    self->mod868.radio->standby();
-                    self->mod868.radio->receiveDirectAsync();
-                }
-            }
+            // (The hourly "deaf workaround" standby/RX was removed: it ran without the
+            // radio mutex, and the profile rotation re-arms the receiver every few
+            // seconds anyway – review 01 M8.)
         }
         
         vTaskDelay(1);  // 1 tick (~1ms) — same rate as rtl_433_ESP receiver
@@ -795,7 +809,34 @@ void RFManager::rtl433Callback(char* message) {
 // ===================================================================
 //  SIGNAL PROCESSING (from decoded JSON)
 // ===================================================================
+// Fixed-size bookkeeping (review 01 H4): FNV-1a hashes of device keys instead of
+// std::map<String,...> entries that grew to tens of KB of internal heap.
+static uint32_t keyHash(const String& k) {
+    uint32_t h = 2166136261u;
+    for (size_t i = 0; i < k.length(); i++) { h ^= (uint8_t)k[i]; h *= 16777619u; }
+    return h ? h : 1;   // 0 marks a free slot
+}
+struct HashTime { uint32_t hash; uint32_t ms; };
+// Find the slot for h; if absent, return the free or oldest slot (and report it via found=false).
+template <size_t N> static HashTime& hashSlot(HashTime (&t)[N], uint32_t h, uint32_t now, bool& found) {
+    size_t victim = N;
+    for (size_t i = 0; i < N; i++) {
+        if (t[i].hash == h) { found = true; return t[i]; }
+        if (victim < N && !t[victim].hash) continue;            // already have a free slot
+        if (!t[i].hash || victim == N || now - t[i].ms > now - t[victim].ms) victim = i;
+    }
+    found = false;
+    return t[victim];
+}
+
 void RFManager::processSignal(char* message, bool is868, int forcedProfile) {
+    // One signal at a time: called from the rtl_433 decoder task and the wM-Bus
+    // pipeline task; the maps, counters and DB caches below are not thread-safe.
+    struct PipeLock {
+        SemaphoreHandle_t m;
+        explicit PipeLock(SemaphoreHandle_t mm) : m(mm) { if (m) xSemaphoreTake(m, portMAX_DELAY); }
+        ~PipeLock() { if (m) xSemaphoreGive(m); }
+    } pipeLock(pipelineMutex);
     JsonDocument doc;
     DeserializationError error = deserializeJson(doc, message);
     
@@ -881,23 +922,21 @@ void RFManager::processSignal(char* message, bool is868, int forcedProfile) {
         String key = signal.model;
         if (doc["id"].is<const char*>()) key += "_" + doc["id"].as<String>();
         else if (!doc["id"].isNull()) key += "_" + String(doc["id"].as<long long>());
-        static std::map<String, uint32_t> pending;    // key -> first sighting (ms)
-        static std::set<String> confirmed;
+        // pending: first sighting per key (2 KB). New devices are stored right after
+        // confirmation, so a separate "confirmed" set is not needed.
+        static HashTime pending[256] = {};
         const uint32_t now = millis();
-        bool ok = confirmed.count(key) || DeviceDatabase::getInstance().isDevicePersisted(key.c_str());
+        bool ok = DeviceDatabase::getInstance().isDevicePersisted(key.c_str());
         if (!ok) {
-            auto it = pending.find(key);
-            if (it != pending.end() && now - it->second < 15 * 60000UL) {
+            const uint32_t h = keyHash(key);
+            bool found;
+            HashTime& slot = hashSlot(pending, h, now, found);
+            if (found && now - slot.ms < 15 * 60000UL) {
                 ok = true;
-                pending.erase(it);
-                if (confirmed.size() < 400) confirmed.insert(key);
+                slot.hash = 0;                         // consumed
             } else {
-                if (pending.size() >= 300) {           // drop expired first-sightings
-                    for (auto i = pending.begin(); i != pending.end();)
-                        i = now - i->second >= 15 * 60000UL ? pending.erase(i) : std::next(i);
-                    if (pending.size() >= 300) pending.clear();
-                }
-                pending[key] = now;
+                slot.hash = h;
+                slot.ms = now;
             }
         }
         if (!ok) {
@@ -918,17 +957,6 @@ void RFManager::processSignal(char* message, bool is868, int forcedProfile) {
         else mod433.decodedSignals--;
     }
     
-    // Only store TRULY DECODED signals in history — classified/undecoded waste ~800 bytes each
-    // With PUBLISH_UNPARSED=true, 868 generates dozens of classified signals/sec → SRAM exhaustion
-    if (!isUndecoded && !isClassified) {
-        xSemaphoreTake(historyMutex, portMAX_DELAY);
-        signalHistory.insert(signalHistory.begin(), signal);
-        if (signalHistory.size() > SIGNAL_HISTORY_MAX) {
-            signalHistory.pop_back();
-        }
-        xSemaphoreGive(historyMutex);
-    }
-    
     // Publish event (for SSE) — but check heap first
     uint32_t freeHeap = ESP.getFreeHeap();
     
@@ -947,16 +975,20 @@ void RFManager::processSignal(char* message, bool is868, int forcedProfile) {
         // ~25 KB of internal heap (2026-11-22).
         const bool known = DeviceDatabase::getInstance().isDevicePersisted(deviceKey.c_str());
         const bool isWmbus = signal.model.startsWith("wMBus");
-        static std::map<String, uint32_t> lastWrite;   // stored devices only
+        // Last DB write per stored device (1.5 KB, oldest entry is reused; never
+        // cleared wholesale, which used to defeat the 15-min rule – review 01 M1).
+        static HashTime lastWrite[192] = {};
         bool write = false;
-        if (known) {
-            uint32_t& lw = lastWrite[deviceKey];
-            if (!lw || millis() - lw > 900000UL) { lw = millis() | 1; write = true; }
-        } else if (!isWmbus) {
-            lastWrite[deviceKey] = millis() | 1;
-            write = true;
+        if (known || !isWmbus) {
+            const uint32_t now = millis();
+            bool found;
+            HashTime& lw = hashSlot(lastWrite, keyHash(deviceKey), now, found);
+            if (!known || !found || now - lw.ms > 900000UL) {
+                lw.hash = keyHash(deviceKey);
+                lw.ms = now;
+                write = true;
+            }
         }
-        if (lastWrite.size() > 120) lastWrite.clear();
         if (write) {
             DeviceDatabase::getInstance().insertOrUpdate(
                 deviceKey.c_str(), signal.model.c_str(), signal.id,
@@ -972,7 +1004,7 @@ void RFManager::processSignal(char* message, bool is868, int forcedProfile) {
     // Classified (undecoded) signals: lightweight publish — no full JsonDocument overhead
     // With PUBLISH_UNPARSED=true, 868 produces dozens/sec → each JsonDocument costs ~1-2KB SRAM
     if (isClassified) {
-        if (freeHeap > 12000) {
+        if (freeHeap > 24000) {
             // Always include the receive band; missing metadata must not become 433 MHz.
             doc["band"] = is868 ? "868" : "433";
             if (havePidx) doc["rx_profile"] = RX_PROFILES[pidx].id;
@@ -989,7 +1021,7 @@ void RFManager::processSignal(char* message, bool is868, int forcedProfile) {
         return; // Skip full SSE enrichment path + user callback for classified
     }
     
-    if (freeHeap < 8192) {
+    if (freeHeap < 20000) {
         // CRITICAL: Skip event publishing to prevent crash
         static unsigned long lastHeapWarn = 0;
         if (millis() - lastHeapWarn > 5000) {
@@ -1106,28 +1138,6 @@ RFModuleStatus RFManager::getModuleStatus(bool is868) {
     
     status.lastUpdate = millis();
     return status;
-}
-
-// ===================================================================
-//  SIGNAL HISTORY
-// ===================================================================
-std::vector<RFSignal> RFManager::getLastSignals(int count) {
-    std::vector<RFSignal> result;
-    
-    xSemaphoreTake(historyMutex, portMAX_DELAY);
-    int n = min(count, (int)signalHistory.size());
-    for (int i = 0; i < n; i++) {
-        result.push_back(signalHistory[i]);
-    }
-    xSemaphoreGive(historyMutex);
-    
-    return result;
-}
-
-void RFManager::clearSignals() {
-    xSemaphoreTake(historyMutex, portMAX_DELAY);
-    signalHistory.clear();
-    xSemaphoreGive(historyMutex);
 }
 
 // ===================================================================
@@ -1288,27 +1298,10 @@ void RFManager::sweepTaskFunc(void* pvParameters) {
         Serial.printf("[RF] Sweep cycle %d complete\n", self->sweepCycleCount);
     }
     
-    // Sweep complete — return to fixed frequency
-    Serial.println("[RF] Sweep stopped, returning to fixed frequency");
+    // Sweep complete — the radios go back to their home profiles (under radioMutex)
+    Serial.println("[RF] Sweep stopped, returning to home profiles");
+    self->applyHomeProfiles();
     self->scanMode = ScanMode::FIXED;
-    
-    if (!is868Band) {
-        rf433.disableReceiver();
-        rf433.setFrequency(previous433Frequency);
-        rf433.setBandwidthReg(previous433Bandwidth);
-        rf433.enableReceiver();
-        self->mod433.currentFreq = previous433Frequency;
-    } else {
-        self->rx868_disableReceiver();
-        if (self->mod868.radio) {
-            self->mod868.radio->standby();
-            self->mod868.radio->setFrequency(868.35);
-            self->mod868.radio->setRxBandwidth(270.0);  // Restore original FSK BW
-            self->mod868.radio->receiveDirectAsync();
-        }
-        self->rx868_enableReceiver();
-        self->mod868.currentFreq = 868.35;
-    }
     
     sweepTaskHandle = nullptr;
     vTaskDelete(NULL);
@@ -1573,27 +1566,20 @@ void RFManager::dualScanTaskFunc(void* pvParameters) {
     
     // Restore fixed frequencies
     Serial.println("[RF] Dual Scan complete, restoring fixed frequencies");
-    self->dualScanRestoreModule(false);
-    self->dualScanRestoreModule(true);
+    self->applyHomeProfiles();        // under radioMutex, correct home bandwidths (review 01 M2)
     self->scanMode = ScanMode::FIXED;
     
     sweepTaskHandle = nullptr;
     vTaskDelete(NULL);
 }
 
-void RFManager::startDualScan(const SweepConfig& cfg433, const SweepConfig& cfg868) {
+void RFManager::doStartDualScan(const SweepConfig& cfg433, const SweepConfig& cfg868) {
     Serial.printf("[RF] startDualScan() enter — heap=%d, PSRAM=%d, scanMode=%d, taskHandle=%p\n",
         ESP.getFreeHeap(), ESP.getFreePsram(), (int)scanMode, (void*)sweepTaskHandle);
     
-    // Stop any existing scan
-    setScanMode(ScanMode::FIXED);
-    
-    // Brief yield to let the stopped task clean up (if any)
-    // Use taskYIELD instead of vTaskDelay to avoid blocking the HTTP handler
-    for (int i = 0; i < 5; i++) {
-        taskYIELD();
-        delayMicroseconds(1000);  // 1ms non-blocking delay × 5 = 5ms total
-    }
+    // Stop any existing scan (runs in the profile task, may wait)
+    doSetScanMode(ScanMode::FIXED);
+    if (sweepTaskHandle != nullptr) return;
     
     Serial.printf("[RF] startDualScan() after stop — heap=%d, taskHandle=%p\n",
         ESP.getFreeHeap(), (void*)sweepTaskHandle);
@@ -1611,6 +1597,7 @@ void RFManager::startDualScan(const SweepConfig& cfg433, const SweepConfig& cfg8
     
     // Set bandwidths BEFORE starting the task — SPI must be done from 
     // the same context as the receiver tasks to avoid cross-core conflicts
+    xSemaphoreTake(radioMutex, portMAX_DELAY);
     rf433.disableReceiver();
     rf433.setBandwidthReg(cfg433.bwMDMCFG4);
     rf433.enableReceiver();
@@ -1622,6 +1609,7 @@ void RFManager::startDualScan(const SweepConfig& cfg433, const SweepConfig& cfg8
         mod868.radio->receiveDirectAsync();
         rx868_enableReceiver();
     }
+    xSemaphoreGive(radioMutex);
     
     // Use the larger duration as global limit (0 = use cycle-based termination)
     dualScanDurationMs = max(cfg433.durationMs, cfg868.durationMs);
@@ -1727,23 +1715,51 @@ String RFManager::getDualScanHeatmapJSON() {
     return json;
 }
 
+// ---- Scan control (review 01 H3/M7) ------------------------------------
+// HTTP handlers only file a request; the profile task (the radios' owner) carries
+// it out. Running scans are asked to stop and waited for – never vTaskDelete'd
+// while they might hold the SPI bus or the radio mutex.
 void RFManager::setScanMode(ScanMode mode, const SweepConfig& cfg) {
+    xSemaphoreTake(cacheMutex, portMAX_DELAY);
+    scanReqMode = mode; scanReqCfg = cfg; scanReq = 1;
+    xSemaphoreGive(cacheMutex);
+    if (profileTaskHandle) xTaskNotifyGive(profileTaskHandle);
+}
+
+void RFManager::startDualScan(const SweepConfig& cfg433, const SweepConfig& cfg868) {
+    xSemaphoreTake(cacheMutex, portMAX_DELAY);
+    scanReq433 = cfg433; scanReq868 = cfg868; scanReq = 2;
+    xSemaphoreGive(cacheMutex);
+    if (profileTaskHandle) xTaskNotifyGive(profileTaskHandle);
+}
+
+// Ask a running sweep/dual scan to end and wait for it (max 5 s).
+bool RFManager::stopScanTask() {
+    if (sweepTaskHandle == nullptr) return true;
+    scanMode = ScanMode::FIXED;
+    for (int i = 0; i < 250 && sweepTaskHandle != nullptr; i++) vTaskDelay(pdMS_TO_TICKS(20));
+    if (sweepTaskHandle != nullptr) {
+        Serial.println("[RF] Scan-Task beendet sich nicht – Anforderung verworfen");
+        return false;
+    }
+    return true;
+}
+
+void RFManager::serviceScanRequest() {
+    xSemaphoreTake(cacheMutex, portMAX_DELAY);
+    const int req = scanReq; scanReq = 0;
+    const ScanMode mode = scanReqMode; const SweepConfig cfg = scanReqCfg;
+    const SweepConfig c433 = scanReq433, c868 = scanReq868;
+    xSemaphoreGive(cacheMutex);
+    if (req == 1) doSetScanMode(mode, cfg);
+    else if (req == 2) doStartDualScan(c433, c868);
+}
+
+void RFManager::doSetScanMode(ScanMode mode, const SweepConfig& cfg) {
     Serial.printf("[RF] setScanMode(%d) — current=%d, taskHandle=%p, heap=%d\n",
         (int)mode, (int)scanMode, (void*)sweepTaskHandle, ESP.getFreeHeap());
     
-    // Stop existing sweep
-    if (sweepTaskHandle != nullptr) {
-        scanMode = ScanMode::FIXED;  // Signal task to exit
-        vTaskDelay(pdMS_TO_TICKS(100));  // Give task time to clean up
-        if (sweepTaskHandle != nullptr) {
-            Serial.printf("[RF] setScanMode: force-deleting task %p\n", (void*)sweepTaskHandle);
-            vTaskDelete(sweepTaskHandle);
-            sweepTaskHandle = nullptr;
-        } else {
-            Serial.println("[RF] setScanMode: task exited cleanly");
-        }
-        
-    }
+    if (!stopScanTask()) return;
     
     // Sweeps and fixed mode both start from the home profiles (OOK 433 / FSK 868).
     // Holding radioMutex keeps the profile task from switching underneath.
@@ -1970,6 +1986,7 @@ int16_t RFManager::applyProfile(int idx) {
     CC1101* r = p.is868 ? mod868.radio : (CC1101*)rtl_433_ESP::radioHandle();
     Module* mod = p.is868 ? mod868.radioModule : (Module*)rtl_433_ESP::moduleHandle();
     if (!r || !mod) return -1;
+    if (!(p.is868 ? mod868.moduleOk : mod433.moduleOk)) return -1;   // module missing: never touch it
 
     if (p.is868) { wmbusActive = false; rx868_disableReceiver(); } else rf433.disableReceiver();
     vTaskDelay(pdMS_TO_TICKS(15));  // let receiver tasks finish in-flight SPI reads
@@ -2061,7 +2078,8 @@ void RFManager::profileTaskFunc(void* pvParameters) {
     RFManager* self = (RFManager*)pvParameters;
     vTaskDelay(pdMS_TO_TICKS(5000));  // let RSSI bootstrap finish in home profiles
     for (;;) {
-        vTaskDelay(pdMS_TO_TICKS(200));
+        ulTaskNotifyTake(pdTRUE, pdMS_TO_TICKS(200));
+        if (self->scanReq) self->serviceScanRequest();
         if (self->scanMode != ScanMode::FIXED) continue;  // sweeps own the radios
         xSemaphoreTake(self->radioMutex, portMAX_DELAY);
         if (self->scanMode == ScanMode::FIXED) {
@@ -2112,6 +2130,8 @@ String RFManager::getRxProfilesJSON() {
     JsonDocument doc;
     doc["rotation"] = profileRotation;
     doc["uptimeMs"] = millis();
+    Supervisor::fillJson(doc["health"].to<JsonObject>());
+    doc["pipeDrops"] = (uint32_t)pipeDrops;
     // Live per-radio metrics (both CC1101)
     JsonArray mods = doc["modules"].to<JsonArray>();
     for (int m = 0; m < 2; m++) {
@@ -2136,7 +2156,7 @@ String RFManager::getRxProfilesJSON() {
             const Rx433Rmt::Stats& r = Rx433Rmt::stats();
             JsonObject rm = o["rmt"].to<JsonObject>();
             rm["frames"] = r.frames; rm["accepted"] = r.accepted; rm["tooShort"] = r.tooShort;
-            rm["belowLevel"] = r.belowLevel; rm["overflow"] = r.overflow; rm["noSlot"] = r.noSlot;
+            rm["belowLevel"] = r.belowLevel; rm["overflow"] = r.overflow; rm["noSlot"] = r.noSlot; rm["rearms"] = r.rearms;
             rm["lastPulses"] = r.lastPulses; rm["lastPeak"] = r.lastPeak;
         }
         {
@@ -2159,6 +2179,28 @@ String RFManager::getRxProfilesJSON() {
             JsonObject w = o["wmbus"].to<JsonObject>();
             w["active"] = (bool)wmbusActive; w["syncs"] = wmbusStats.syncs; w["ok"] = wmbusStats.ok;
             w["bad"] = wmbusStats.bad; w["overflow"] = wmbusStats.overflow; w["lastError"] = wmbusStats.lastError;
+            {
+                JsonObject e = w["errors"].to<JsonObject>();
+                e["start"] = wmbusErr.start;
+                static const char* const kMode[3] = {"T1", "C1A", "C1B"};
+                static const char* const kKind[6] = {"none", "start", "incomplete", "symbol", "crc", "length"};
+                for (int m = 0; m < 3; m++) {
+                    JsonObject mo = e[kMode[m]].to<JsonObject>();
+                    for (int k = 2; k < 6; k++) mo[kKind[k]] = wmbusErr.kind[m][k];
+                }
+                JsonArray cb = e["crcBlock"].to<JsonArray>();
+                for (uint32_t v : wmbusErr.crcBlock) cb.add(v);
+                for (int i = 0; i < 2; i++) {
+                    JsonObject a = e[i ? "bad" : "ok"].to<JsonObject>();
+                    const uint32_t n = wmbusErr.n[i];
+                    a["count"] = n;
+                    if (n) {
+                        a["rssi"] = (float)wmbusErr.rssiSum[i] / n;
+                        a["lqi"] = (float)wmbusErr.lqiSum[i] / n;
+                        a["freqOffsetKHz"] = 1.587f * wmbusErr.festSum[i] / n;
+                    }
+                }
+            }
             w["chipVersion"] = wmbusStats.version; w["marcState"] = wmbusStats.marc; w["rxbytesRaw"] = wmbusStats.rxbytes;
             w["pktctrl0"] = wmbusStats.pktctrl0; w["mdmcfg2"] = wmbusStats.mdmcfg2; w["iocfg0"] = wmbusStats.iocfg0;
             w["isr"] = wmbusStats.isr; w["wakes"] = wmbusStats.wakes; w["maxFill"] = wmbusStats.maxFill;
@@ -2288,6 +2330,21 @@ void RFManager::wmbusEnter(const RxProfile& p) {
     mod->SPIwriteRegister(RADIOLIB_CC1101_REG_AGCCTRL1, 0x09);
     mod->SPIwriteRegister(RADIOLIB_CC1101_REG_AGCCTRL0, 0xB5);
     mod->SPIwriteRegister(RADIOLIB_CC1101_REG_FREND1, 0xB6);
+    // Registers the previous async profile used to leave behind (review 04 M6):
+    // IF frequency, preamble/channel spacing. Set explicitly for every visit.
+    const bool ref = strcmp(p.id, "wmbus-ref") == 0;
+    mod->SPIwriteRegister(RADIOLIB_CC1101_REG_FSCTRL1, p.fsctrl1);
+    mod->SPIwriteRegister(RADIOLIB_CC1101_REG_FSCTRL0, 0x00);
+    mod->SPIwriteRegister(RADIOLIB_CC1101_REG_MDMCFG1, 0x22);
+    mod->SPIwriteRegister(RADIOLIB_CC1101_REG_MDMCFG0, 0xF8);
+    if (ref) {
+        // Reference set (culfw rf_mbus T-mode / TI DN022): 103 kBaud, 38 kHz deviation,
+        // 15/16 sync bits + carrier sense against noise syncs.
+        mod->SPIwriteRegister(RADIOLIB_CC1101_REG_MDMCFG4, 0x5C);
+        mod->SPIwriteRegister(RADIOLIB_CC1101_REG_MDMCFG3, 0x04);
+        mod->SPIwriteRegister(RADIOLIB_CC1101_REG_DEVIATN, 0x44);
+        mod->SPIsetRegValue(RADIOLIB_CC1101_REG_MDMCFG2, 0x05);   // 2-FSK, 15/16 sync + carrier sense
+    }
     cc868Strobe(RADIOLIB_CC1101_CMD_IDLE);
     cc868Strobe(RADIOLIB_CC1101_CMD_FLUSH_RX);
     cc868Strobe(RADIOLIB_CC1101_CMD_RX);
@@ -2317,6 +2374,16 @@ void IRAM_ATTR RFManager::wmbusFifoIsr() {
 
 // Dedicated drain task on core 1 (core 0 carries WiFi + rtl_433 decoding, which
 // delayed wake-ups by >20 ms; the 64-byte FIFO overflows after ~5 ms).
+void RFManager::pipelineTaskFunc(void* pv) {
+    RFManager* self = (RFManager*)pv;
+    PipeItem item;
+    for (;;) {
+        if (xQueueReceive(self->pipeQueue, &item, portMAX_DELAY) != pdTRUE) continue;
+        self->processSignal(item.msg, true, item.profile);
+        free(item.msg);
+    }
+}
+
 void RFManager::wmbusTaskFunc(void* pv) {
     RFManager* self = (RFManager*)pv;
     for (;;) {
@@ -2334,7 +2401,7 @@ bool RFManager::wmbusPoll(int profileIdx) {
     static uint8_t buf[640];
     static size_t len = 0, want = 0;
     static uint32_t lastByteUs = 0;
-    static int rssiAtSync = -128, lqi = 0;
+    static int rssiAtSync = -128, lqi = 0, freqEst = 0;
     auto restart = [&]() {
         cc868Strobe(RADIOLIB_CC1101_CMD_IDLE);
         cc868Strobe(RADIOLIB_CC1101_CMD_FLUSH_RX);
@@ -2383,6 +2450,7 @@ bool RFManager::wmbusPoll(int profileIdx) {
         const uint8_t r = cc868Status(0x34);
         rssiAtSync = r >= 128 ? ((int)r - 256) / 2 - 74 : r / 2 - 74;
         lqi = cc868Status(0x33) & 0x7F;
+        freqEst = (int8_t)cc868Status(0x32);     // FREQEST: offset in steps of fXOSC/2^14 (~1.59 kHz)
     }
     // Leave one byte in the FIFO while receiving (CC1101 errata on last-byte reads)
     uint8_t take = n > 1 ? n - 1 : n;
@@ -2394,12 +2462,17 @@ bool RFManager::wmbusPoll(int profileIdx) {
         wmbus::Mode mode;
         want = wmbus::expectedRawLength(buf, len, mode);
         if (!want) {   // sync matched noise
+            wmbusErr.start++;
             wmbusStats.bad++; snprintf(wmbusStats.lastError, sizeof wmbusStats.lastError, "ungültiger Rahmenanfang");
             restart(); return false;
         }
     }
     if (want && len >= want) {
         wmbus::Frame f = wmbus::decode(buf, want);
+        // Re-arm the receiver first: everything below takes milliseconds, and
+        // a meter's next telegram must not hit a stopped FIFO (review 04 H3).
+        restart();
+        wmbusErr.note(f, rssiAtSync, lqi, freqEst);
         if (f.ok) {
             wmbusStats.ok++;
             std::string js = wmbus::toJson(f, rssiAtSync, lqi);
@@ -2410,14 +2483,20 @@ bool RFManager::wmbusPoll(int profileIdx) {
             js += meta;
             Serial.printf("[wMBus] %s %s %s typ=%s enc=%d rssi=%d\n", wmbus::modeName(f.mode), f.manufacturer.c_str(),
                           f.id.c_str(), wmbus::deviceTypeName(f.type), f.encryption, rssiAtSync);
-            std::vector<char> msg(js.begin(), js.end()); msg.push_back(0);
-            processSignal(msg.data(), true, profileIdx);
+            // Hand over to the pipeline task (PSRAM copy); processing (DB, MQTT,
+            // SSE) never runs in this high-priority receive task (review 01 H1/H2).
+            PipeItem item{(char*)heap_caps_malloc(js.size() + 1, MALLOC_CAP_SPIRAM), (int16_t)profileIdx};
+            if (item.msg) {
+                memcpy(item.msg, js.c_str(), js.size() + 1);
+                if (!pipeQueue || xQueueSend(pipeQueue, &item, 0) != pdTRUE) { free(item.msg); pipeDrops++; }
+            } else {
+                pipeDrops++;
+            }
         } else {
             wmbusStats.bad++;
             snprintf(wmbusStats.lastError, sizeof wmbusStats.lastError, "%s", f.error.c_str());
             if (profileIdx >= 0) rxStats[profileIdx].unparsed++;
         }
-        restart();
         return false;
     }
     if (len >= sizeof(buf)) { wmbusStats.bad++; restart(); return false; }

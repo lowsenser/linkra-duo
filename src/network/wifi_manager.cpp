@@ -3,6 +3,81 @@
 #include "../core/config_manager.h"
 #include <atomic>
 #include <esp_sntp.h>
+#include <Preferences.h>
+#include <esp_random.h>
+
+// ---------- Reconnect with backoff ----------
+// The driver's auto-reconnect retried about once per second. After many quick
+// association attempts (crash loops, hundreds of esptool resets) a UniFi AP
+// stopped answering (AUTH_EXPIRE) and the constant retries kept it that way.
+// First 5 failures: retry after 2 s; then 15 s, 30 s, ... up to 5 min.
+#include <esp_timer.h>
+#include <esp_phy_init.h>
+#include <esp_attr.h>
+static esp_timer_handle_t s_reconnectTimer = nullptr;
+static uint32_t s_failures = 0;
+static uint32_t s_authExpire = 0;            // consecutive AUTH_EXPIRE since boot without success
+// Survives a software reset: was the PHY calibration already erased for this problem?
+static RTC_NOINIT_ATTR uint32_t s_phyResetMagic;
+static constexpr uint32_t kPhyResetMagic = 0x50485952;   // "PHYR"
+
+// After many USB/esptool resets the radio sometimes never got an answer to its
+// authentication (AUTH_EXPIRE on every attempt) until the board was powered
+// off – soft resets kept the problem. A power-on runs a full RF calibration,
+// a soft reset reuses the calibration data in NVS. So: after 10 AUTH_EXPIRE in
+// a row, erase that data once and restart (2026-11-25).
+static void noteDisconnectReason(uint8_t reason) {
+    if (reason != WIFI_REASON_AUTH_EXPIRE) { s_authExpire = 0; return; }
+    if (++s_authExpire < 10 || s_phyResetMagic == kPhyResetMagic) return;
+    Serial.println("[WiFi] Anmeldung scheitert dauerhaft (AUTH_EXPIRE) – Funk-Kalibrierung wird neu erstellt, Neustart");
+    s_phyResetMagic = kPhyResetMagic;
+    esp_phy_erase_cal_data_in_nvs();
+    delay(100);
+    ESP.restart();
+}
+
+static void reconnectNow(void*) {
+    if (WiFi.status() != WL_CONNECTED) WiFi.reconnect();
+}
+
+static void scheduleReconnect() {
+    if (!s_reconnectTimer) {
+        esp_timer_create_args_t a = {};
+        a.callback = reconnectNow;
+        a.name = "wifiRetry";
+        if (esp_timer_create(&a, &s_reconnectTimer) != ESP_OK) return;
+    }
+    s_failures++;
+    uint32_t delayMs = 2000;
+    if (s_failures > 5) {
+        delayMs = 15000u << (s_failures - 6 < 5 ? s_failures - 6 : 5);
+        if (delayMs > 300000u) delayMs = 300000u;
+    }
+    esp_timer_stop(s_reconnectTimer);
+    esp_timer_start_once(s_reconnectTimer, (uint64_t)delayMs * 1000);
+    if (s_failures == 6 || (s_failures > 6 && delayMs == 300000u && s_failures % 6 == 0))
+        Serial.printf("[WiFi] %lu Fehlversuche – nächster Versuch in %lu s\n", (unsigned long)s_failures, (unsigned long)(delayMs / 1000));
+}
+
+// ---------- Setup-Hotspot-Passwort ----------
+// WPA2 instead of an open hotspot (review 05 H5): a device-specific password is
+// generated once and kept in NVS. It is printed on the serial console whenever
+// the hotspot starts and shown to a logged-in user (Einstellungen -> WLAN).
+String WiFiManager::setupApPassword() {
+    Preferences p;
+    p.begin("linkra", false);
+    String pw = p.getString("ap_pw", "");
+    if (pw.length() < 8) {
+        static const char kAlphabet[] = "abcdefghjkmnpqrstuvwxyz23456789";   // no 0/o/1/l/i
+        char buf[13];
+        for (int i = 0; i < 12; i++) buf[i] = kAlphabet[esp_random() % (sizeof(kAlphabet) - 1)];
+        buf[12] = '\0';
+        pw = buf;
+        p.putString("ap_pw", pw);
+    }
+    p.end();
+    return pw;
+}
 
 // ---------- Zeit (NTP) ----------
 // Wird bei JEDEM GOT_IP neu gestartet (nicht nur beim Boot), damit die Uhr auch
@@ -47,6 +122,10 @@ void WiFiManager::handleWiFiEvent(WiFiEvent_t event, WiFiEventInfo_t info) {
             break;
             
         case ARDUINO_EVENT_WIFI_STA_GOT_IP:
+            s_failures = 0;
+            s_authExpire = 0;
+            s_phyResetMagic = 0;
+            if (s_reconnectTimer) esp_timer_stop(s_reconnectTimer);
             Serial.print("[WiFi] Got IP: ");
             Serial.println(WiFi.localIP());
             currentMode = WiFiMode::STA_CONNECTED;
@@ -69,6 +148,8 @@ void WiFiManager::handleWiFiEvent(WiFiEvent_t event, WiFiEventInfo_t info) {
             
         case ARDUINO_EVENT_WIFI_STA_DISCONNECTED:
             Serial.println("[WiFi] STA Disconnected");
+            noteDisconnectReason(info.wifi_sta_disconnected.reason);
+            scheduleReconnect();
             if (currentMode == WiFiMode::STA_CONNECTED || currentMode == WiFiMode::STA_CONNECTING) {
                 currentMode = WiFiMode::STA_FAILED;
                 for (auto& cb : onDisconnectedCallbacks) {
@@ -107,8 +188,9 @@ void WiFiManager::beginSetupAP(const char* apName) {
     WiFi.setSleep(false);
     delay(10);
     
-    // Open network for setup (no password required)
-    bool success = WiFi.softAP(apName, nullptr, 6, 0, 4);
+    // WPA2 with the device's own setup password (never an open network)
+    const String pw = setupApPassword();
+    bool success = WiFi.softAP(apName, pw.c_str(), 6, 0, 4);
     
     if (!success) {
         Serial.println("[WiFi] ERROR: Setup AP creation failed!");
@@ -119,7 +201,7 @@ void WiFiManager::beginSetupAP(const char* apName) {
     WiFi.softAPsetHostname("linkra-setup");
     
     IPAddress ip = WiFi.softAPIP();
-    Serial.printf("[WiFi] Setup AP started: %s (Open)\n", apName);
+    Serial.printf("[WiFi] Setup AP started: %s (WPA2, Passwort: %s)\n", apName, pw.c_str());
     Serial.printf("[WiFi] Setup IP: %s\n", ip.toString().c_str());
     
     EventBus::getInstance().publish(SystemEvent::WIFI_AP_STARTED, ip.toString());
@@ -190,11 +272,10 @@ bool WiFiManager::connectToWiFi(const char* ssid, const char* password) {
     currentMode = WiFiMode::STA_CONNECTING;
     
     Serial.printf("[WiFi] Connecting to: %s\n", ssid);
-    Serial.println("[WiFi] AP_STA Mode - AP bleibt aktiv während Verbindung!");
-    
-    // WICHTIG: Wir bleiben im AP_STA Mode!
-    // Der AP bleibt erreichbar während wir versuchen zu verbinden
-    WiFi.mode(WIFI_AP_STA);
+    // Keep the hotspot only if it is already running (setup mode). Switching a
+    // connected station to AP_STA would open the chip's default, unprotected
+    // SoftAP (review 05 H6).
+    WiFi.mode((WiFi.getMode() & WIFI_MODE_AP) ? WIFI_AP_STA : WIFI_STA);
     WiFi.setSleep(false);
     delay(10);
     

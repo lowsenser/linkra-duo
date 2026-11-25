@@ -70,7 +70,7 @@ static int account_event(r_device* device, bitbuffer_t* bits, char const* demod_
 }
 
 int pulse_slicer_pcm(pulse_data_t const* pulses, r_device* device) {
-  float samples_per_us = pulses->sample_rate / 1.0e6;
+  float samples_per_us = pulses->sample_rate / 1.0e6f;
   int s_short = device->short_width * samples_per_us;
   int s_long = device->long_width * samples_per_us;
   int s_reset = device->reset_limit * samples_per_us;
@@ -85,8 +85,8 @@ int pulse_slicer_pcm(pulse_data_t const* pulses, r_device* device) {
   }
 
   // precision reciprocals
-  float f_short = device->short_width > 0.0 ? 1.0 / (device->short_width * samples_per_us) : 0;
-  float f_long = device->long_width > 0.0 ? 1.0 / (device->long_width * samples_per_us) : 0;
+  float f_short = device->short_width > 0.0f ? 1.0f / (device->short_width * samples_per_us) : 0;
+  float f_long = device->long_width > 0.0f ? 1.0f / (device->long_width * samples_per_us) : 0;
 
   int events = 0;
   // bitbuffer_t bits = {0};
@@ -151,7 +151,7 @@ int pulse_slicer_pcm(pulse_data_t const* pulses, r_device* device) {
   for (unsigned n = 0; s_short == s_long && n < pulses->num_pulses; ++n) {
     int width = 0;
     int count = 0;
-    while (n < pulses->num_pulses && (int)(pulses->pulse[n] * f_short + 0.5) == 1 && (int)(pulses->gap[n] * f_long + 0.5) == 1) {
+    while (n < pulses->num_pulses && (int)(pulses->pulse[n] * f_short + 0.5f) == 1 && (int)(pulses->gap[n] * f_long + 0.5f) == 1) {
       width += pulses->pulse[n] + pulses->gap[n];
       count += 2;
       n++;
@@ -201,10 +201,10 @@ int pulse_slicer_pcm(pulse_data_t const* pulses, r_device* device) {
 
   for (unsigned n = 0; n < pulses->num_pulses; ++n) {
     // Determine number of high bit periods for NRZ coding, where bits may not be separated
-    int highs = (pulses->pulse[n]) * f_short + 0.5;
+    int highs = (pulses->pulse[n]) * f_short + 0.5f;
     // Determine number of low bit periods in current gap length (rounded)
     // for RZ subtract the nominal bit-gap
-    int lows = (pulses->gap[n] + s_short - s_long) * f_long + 0.5;
+    int lows = (pulses->gap[n] + s_short - s_long) * f_long + 0.5f;
 
     // Add run of ones (1 for RZ, many for NRZ)
     for (int i = 0; i < highs; ++i) {
@@ -246,7 +246,7 @@ int pulse_slicer_pcm(pulse_data_t const* pulses, r_device* device) {
 }
 
 int pulse_slicer_ppm(pulse_data_t const* pulses, r_device* device) {
-  float samples_per_us = pulses->sample_rate / 1.0e6;
+  float samples_per_us = pulses->sample_rate / 1.0e6f;
 
   int s_short = device->short_width * samples_per_us;
   int s_long = device->long_width * samples_per_us;
@@ -317,7 +317,7 @@ int pulse_slicer_ppm(pulse_data_t const* pulses, r_device* device) {
 }
 
 int pulse_slicer_pwm(pulse_data_t const* pulses, r_device* device) {
-  float samples_per_us = pulses->sample_rate / 1.0e6;
+  float samples_per_us = pulses->sample_rate / 1.0e6f;
 
   int s_short = device->short_width * samples_per_us;
   int s_long = device->long_width * samples_per_us;
@@ -418,7 +418,7 @@ int pulse_slicer_pwm(pulse_data_t const* pulses, r_device* device) {
 }
 
 int pulse_slicer_manchester_zerobit(pulse_data_t const* pulses, r_device* device) {
-  float samples_per_us = pulses->sample_rate / 1.0e6;
+  float samples_per_us = pulses->sample_rate / 1.0e6f;
 
   int s_short = device->short_width * samples_per_us;
   int s_long = device->long_width * samples_per_us;
@@ -444,7 +444,7 @@ int pulse_slicer_manchester_zerobit(pulse_data_t const* pulses, r_device* device
   for (unsigned n = 0; n < pulses->num_pulses; ++n) {
     // The pulse or gap is too long or too short, thus invalid
     if (s_tolerance > 0 && (pulses->pulse[n] < s_short - s_tolerance || pulses->pulse[n] > s_short * 2 + s_tolerance || pulses->gap[n] < s_short - s_tolerance || pulses->gap[n] > s_short * 2 + s_tolerance)) {
-      if (pulses->pulse[n] > s_short * 1.5 && pulses->pulse[n] <= s_short * 2 + s_tolerance) {
+      if (pulses->pulse[n] > s_short * 1.5f && pulses->pulse[n] <= s_short * 2 + s_tolerance) {
         // Long last pulse means with the gap this is a [1]10 transition, add a one
         bitbuffer_add_bit(&bits, 1);
       }
@@ -453,7 +453,7 @@ int pulse_slicer_manchester_zerobit(pulse_data_t const* pulses, r_device* device
       time_since_last = 0;
     }
     // Falling edge is on end of pulse
-    else if (pulses->pulse[n] + time_since_last > (s_short * 1.5)) {
+    else if (pulses->pulse[n] + time_since_last > (s_short * 1.5f)) {
       // Last bit was recorded more than short_width*1.5 samples ago
       // so this pulse start must be a data edge (falling data edge means bit = 1)
       bitbuffer_add_bit(&bits, 1);
@@ -472,7 +472,7 @@ int pulse_slicer_manchester_zerobit(pulse_data_t const* pulses, r_device* device
       time_since_last = 0;
     }
     // Rising edge is on end of gap
-    else if (pulses->gap[n] + time_since_last > (s_short * 1.5)) {
+    else if (pulses->gap[n] + time_since_last > (s_short * 1.5f)) {
       // Last bit was recorded more than short_width*1.5 samples ago
       // so this pulse end is a data edge (rising data edge means bit = 0)
       bitbuffer_add_bit(&bits, 0);
@@ -492,7 +492,7 @@ static inline int pulse_slicer_get_symbol(pulse_data_t const* pulses, unsigned i
 }
 
 int pulse_slicer_dmc(pulse_data_t const* pulses, r_device* device) {
-  float samples_per_us = pulses->sample_rate / 1.0e6;
+  float samples_per_us = pulses->sample_rate / 1.0e6f;
 
   int s_short = device->short_width * samples_per_us;
   int s_long = device->long_width * samples_per_us;
@@ -543,7 +543,7 @@ int pulse_slicer_dmc(pulse_data_t const* pulses, r_device* device) {
 }
 
 int pulse_slicer_piwm_raw(pulse_data_t const* pulses, r_device* device) {
-  float samples_per_us = pulses->sample_rate / 1.0e6;
+  float samples_per_us = pulses->sample_rate / 1.0e6f;
 
   int s_short = device->short_width * samples_per_us;
   int s_long = device->long_width * samples_per_us;
@@ -559,7 +559,7 @@ int pulse_slicer_piwm_raw(pulse_data_t const* pulses, r_device* device) {
   }
 
   // precision reciprocal
-  float f_short = device->short_width > 0.0 ? 1.0 / (device->short_width * samples_per_us) : 0;
+  float f_short = device->short_width > 0.0f ? 1.0f / (device->short_width * samples_per_us) : 0;
 
   int w;
 
@@ -569,7 +569,7 @@ int pulse_slicer_piwm_raw(pulse_data_t const* pulses, r_device* device) {
 
   for (unsigned int n = 0; n < pulses->num_pulses * 2; ++n) {
     int symbol = pulse_slicer_get_symbol(pulses, n);
-    w = symbol * f_short + 0.5;
+    w = symbol * f_short + 0.5f;
     if (symbol > s_long) {
       bitbuffer_add_row(&bits);
     } else if (abs(symbol - w * s_short) < s_tolerance) {
@@ -596,7 +596,7 @@ int pulse_slicer_piwm_raw(pulse_data_t const* pulses, r_device* device) {
 }
 
 int pulse_slicer_piwm_dc(pulse_data_t const* pulses, r_device* device) {
-  float samples_per_us = pulses->sample_rate / 1.0e6;
+  float samples_per_us = pulses->sample_rate / 1.0e6f;
 
   int s_short = device->short_width * samples_per_us;
   int s_long = device->long_width * samples_per_us;
@@ -643,7 +643,7 @@ int pulse_slicer_piwm_dc(pulse_data_t const* pulses, r_device* device) {
 }
 
 int pulse_slicer_nrzs(pulse_data_t const* pulses, r_device* device) {
-  float samples_per_us = pulses->sample_rate / 1.0e6;
+  float samples_per_us = pulses->sample_rate / 1.0e6f;
 
   int s_short = device->short_width * samples_per_us;
   int s_long = device->long_width * samples_per_us;
@@ -695,7 +695,7 @@ int pulse_slicer_nrzs(pulse_data_t const* pulses, r_device* device) {
  */
 
 int pulse_slicer_osv1(pulse_data_t const* pulses, r_device* device) {
-  float samples_per_us = pulses->sample_rate / 1.0e6;
+  float samples_per_us = pulses->sample_rate / 1.0e6f;
 
   int s_short = device->short_width * samples_per_us;
   int s_long = device->long_width * samples_per_us;

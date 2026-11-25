@@ -1,4 +1,5 @@
 #pragma once
+#include "wmbus.h"
 
 #include <Arduino.h>
 #include <RadioLib.h>
@@ -14,7 +15,7 @@ extern "C" {
 }
 
 // JSON message buffer size for rtl_433_ESP callback
-#define RTL433_JSON_BUFFER 1024
+#define RTL433_JSON_BUFFER 2048   // PSRAM; long M-Bus/Honeywell events overflowed 1 KB (review 03 M4)
 
 /**
  * Decoded RF Signal from rtl_433_ESP
@@ -186,8 +187,6 @@ public:
     typedef std::function<void(RFSignal&, bool is868)> SignalCallback;
     void onSignal(SignalCallback cb);
     
-    std::vector<RFSignal> getLastSignals(int count = 10);
-    void clearSignals();
     
     RFStatusCache getStatusCache();
     RFModuleStatus getModuleStatus(bool module868);
@@ -257,9 +256,7 @@ private:
         TaskHandle_t receiverTaskHandle = nullptr;
     } mod868;
     
-    std::vector<RFSignal> signalHistory;
     SignalCallback signalCallback;
-    SemaphoreHandle_t historyMutex = nullptr;
     
     RFStatusCache statusCache;
     SemaphoreHandle_t cacheMutex = nullptr;
@@ -360,11 +357,41 @@ private:
     bool wmbusRegsSaved = false;
     uint8_t wmbusSavedRegs[0x2F];
     struct { uint32_t syncs = 0, ok = 0, bad = 0, overflow = 0; char lastError[48] = ""; uint8_t version = 0, marc = 0, rxbytes = 0, pktctrl0 = 0, mdmcfg2 = 0, iocfg0 = 0; uint32_t isr = 0, wakes = 0, maxFill = 0, isrUs = 0, latencyUs = 0, wakeUs = 0, spiUs = 0; uint8_t firstRx = 0, mdmcfg4 = 0, mdmcfg3 = 0, deviatn = 0, freq2 = 0, freq1 = 0, freq0 = 0; } wmbusStats;
+    // Rejection statistics for tuning (review P3: measure the CRC rate first)
+    struct WmbusErrStats {
+        uint32_t start = 0;                       // sync on noise (no valid L/C)
+        uint32_t kind[3][6] = {};                 // [T1,C1A,C1B][ErrKind]
+        uint32_t crcBlock[8] = {};                // failing CRC block (7 = 7 or later)
+        int32_t rssiSum[2] = {}, lqiSum[2] = {}, festSum[2] = {};   // [ok, bad]
+        uint32_t n[2] = {};
+        void note(const wmbus::Frame& f, int rssi, int lqi, int fest) {
+            const int ok = f.ok ? 0 : 1;
+            rssiSum[ok] += rssi; lqiSum[ok] += lqi; festSum[ok] += fest; n[ok]++;
+            if (f.ok) return;
+            const int m = f.mode == wmbus::Mode::T1 ? 0 : f.mode == wmbus::Mode::C1A ? 1 : 2;
+            kind[m][(int)f.errKind]++;
+            if (f.errKind == wmbus::ErrKind::Crc && f.errAt >= 0) crcBlock[f.errAt < 7 ? f.errAt : 7]++;
+        }
+    } wmbusErr;
     void wmbusEnter(const RxProfile& p);
     void wmbusLeave();
     bool wmbusPoll(int profileIdx);  // true while a frame is being received
     static void IRAM_ATTR wmbusFifoIsr();
     static void wmbusTaskFunc(void* pv);
+    struct PipeItem { char* msg; int16_t profile; };
+    QueueHandle_t pipeQueue = nullptr;
+    SemaphoreHandle_t pipelineMutex = nullptr;
+    TaskHandle_t pipelineTaskHandle = nullptr;
+    volatile uint32_t pipeDrops = 0;
+    static void pipelineTaskFunc(void* pv);
+    // Scan control requests (served by the profile task)
+    volatile int scanReq = 0;              // 0 none, 1 setScanMode, 2 dual scan
+    ScanMode scanReqMode = ScanMode::FIXED;
+    SweepConfig scanReqCfg, scanReq433, scanReq868;
+    void serviceScanRequest();
+    bool stopScanTask();
+    void doSetScanMode(ScanMode mode, const SweepConfig& cfg = SweepConfig());
+    void doStartDualScan(const SweepConfig& cfg433, const SweepConfig& cfg868);
     TaskHandle_t wmbusTaskHandle = nullptr;
     uint8_t cc868Status(uint8_t reg);
     void cc868Strobe(uint8_t cmd);

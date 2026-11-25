@@ -10,6 +10,8 @@
 namespace wmbus {
 
 enum class Mode : uint8_t { Unknown, T1, C1A, C1B };
+// Why a capture was rejected (statistics for tuning the receiver)
+enum class ErrKind : uint8_t { None, Start, Incomplete, Symbol, Crc, Length };
 
 // EN 13757 CRC-16 (poly 0x3D65, init 0, xorout 0xFFFF, MSB first)
 uint16_t crc16(const uint8_t* d, size_t n);
@@ -32,12 +34,29 @@ struct Record {
 struct Frame {
     bool ok = false;
     std::string error;           // why decoding failed
+    ErrKind errKind = ErrKind::None;
+    int errAt = -1;              // Crc: block index (0 = header block); Symbol: byte index
     Mode mode = Mode::Unknown;
     std::vector<uint8_t> data;   // link-layer bytes without CRCs (L C M M A..)
     uint8_t L = 0, C = 0, version = 0, type = 0, ci = 0;
+    // Identity of the TRANSMITTER (data link layer). Stable device key in the
+    // gateway (wMBus-<manufacturer>_<id>), also for radio modules that relay a meter.
     std::string manufacturer;    // 3-letter FLAG code, e.g. "ITW"
-    std::string id;              // 8 digit meter address as printed on the device
-    int encryption = -1;         // TPL security mode (0 = none, 5 = AES-CBC, 7 = AES-CTR), -1 unknown
+    std::string id;              // 8 digit address
+    // Meter behind the radio module, from a long transport header (CI 0x72/0x8x...).
+    bool hasMeter = false;
+    std::string meterManufacturer, meterId;
+    uint8_t meterVersion = 0, meterType = 0;
+    // Extended link layer (CI 0x8C-0x8F) and authentication/fragmentation layer (0x90)
+    bool hasEll = false, hasAfl = false;
+    uint8_t ellCc = 0, ellAcc = 0;
+    uint16_t aflFcl = 0, aflKi = 0;
+    uint8_t aflMcl = 0;
+    uint32_t aflMcr = 0;         // message counter (needed for AES mode 7 key derivation)
+    std::vector<uint8_t> aflMac;
+    uint8_t encBlocks = 0;       // number of encrypted 16-byte blocks (config field)
+    size_t payloadOffset = 0;    // index in data[] where the (possibly encrypted) payload starts
+    int encryption = -1;         // TPL security mode (0 none, 5 AES-CBC, 7 AES-CBC with derived key, 100 ELL AES-CTR), -1 unknown
     uint8_t accessNo = 0, status = 0;
     bool payloadParsed = false;
     std::vector<Record> records;

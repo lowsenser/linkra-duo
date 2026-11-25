@@ -1148,4 +1148,5 @@ r_device const vivint = {
         .decode_fn   = &vivint_decode,
         .create_fn   = &vivint_create,
         .fields      = output_fields,
+        .disabled    = 1, // LINKRA: US-only frequency (315/345/915 MHz), never received here (review 03)
 };

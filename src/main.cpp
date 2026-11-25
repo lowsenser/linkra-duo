@@ -8,6 +8,15 @@
 #include <Arduino.h>
 #include "core/system_init.h"
 #include "core/crash_log.h"
+#include "core/supervisor.h"
+
+// OTA rollback: a freshly installed image boots in "pending verify". Arduino would
+// mark it valid at once; we defer that until the Supervisor has seen it run
+// healthy (WiFi up, 90 s without a crash). A crash before that makes the
+// bootloader fall back to the previous image on the next reset.
+// extern "C" is required: the weak default lives in esp32-hal-misc.c (C linkage);
+// a plain C++ definition gets a mangled name and silently never overrides it.
+extern "C" bool verifyRollbackLater() { return true; }
 
 void setup() {
     // Larger malloc()s go to PSRAM (8 MB) so the ~320 KB internal RAM stays
@@ -28,5 +37,6 @@ void setup() {
 }
 
 void loop() {
+    Supervisor::tick();
     vTaskDelay(pdMS_TO_TICKS(1000));
 }

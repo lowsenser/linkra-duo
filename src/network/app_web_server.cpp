@@ -322,6 +322,9 @@ void LinkraWebServer::setupRoutes() {
         }
         d["mac"] = WiFi.macAddress();
         d["hostname"] = WiFi.getHostname();
+        // Setup hotspot credentials (logged-in users only; the route is protected)
+        d["setup_ap_ssid"] = "Linkra-Duo-Setup";
+        d["setup_ap_password"] = WiFiManager::setupApPassword();
         String out; serializeJson(d, out);
         request->send(200, "application/json", out);
     });
@@ -611,24 +614,9 @@ void LinkraWebServer::setupRoutes() {
             if (digitalRead(RF_MODULE_GDO0)) gdo0High++;
         }
         
-        // GDO0 pin test: Force CC1101 GDO0 output, read GPIO, restore
-        // CC1101 IOCFG0 register: bits 5:0 = GDO_CFG, bit 6 = GDO0_INV
-        // GDO_CFG 0x2F = "HW to 0" (drives output LOW)
-        // GDO_CFG 0x2F + invert = 0x6F (drives output HIGH)
-        uint8_t origIOCFG0 = rtl_433_ESP::readCC1101Reg(0x02);
-        rtl_433_ESP::writeCC1101Reg(0x02, 0x6F);  // Force GDO0 = HIGH (HW to 0 + invert)
-        delayMicroseconds(200);
-        int gdo0ForcedHigh = 0;
-        for (int i = 0; i < 100; i++) {
-            if (digitalRead(RF_MODULE_GDO0)) gdo0ForcedHigh++;
-        }
-        rtl_433_ESP::writeCC1101Reg(0x02, 0x2F);  // Force GDO0 = LOW (HW to 0)
-        delayMicroseconds(200);
-        int gdo0ForcedLow = 0;
-        for (int i = 0; i < 100; i++) {
-            if (digitalRead(RF_MODULE_GDO0)) gdo0ForcedLow++;
-        }
-        rtl_433_ESP::writeCC1101Reg(0x02, origIOCFG0);  // Restore
+        // The forced-GDO0 register test was removed: it rewrote IOCFG0 from the web
+        // task without the radio mutex, racing the capture (review 05 H4).
+        const int gdo0ForcedHigh = -1, gdo0ForcedLow = -1;
         
         AsyncResponseStream* response = request->beginResponseStream("application/json");
         response->printf("{\"libTotalSignals\":%d,", rtl_433_ESP::totalSignals);

@@ -131,6 +131,7 @@ bool rtl_433_ESP::ookModulation = OOK_MODULATION; // Defaults to true
 volatile uint32_t rtl_433_ESP::forcedEnds = 0;
 volatile uint32_t rtl_433_ESP::captureOverruns = 0;
 bool rtl_433_ESP::externalCapture = false;
+volatile bool rtl_433_ESP::radioError = false;
 #define RSSI_RING_N 2048
 static uint32_t* rssiRingT = nullptr;         // ms, PSRAM (task context only)
 static int8_t* rssiRingV = nullptr;
@@ -528,7 +529,7 @@ void ICACHE_RAM_ATTR rtl_433_ESP::interruptHandler() {
  * 
  */
 void rtl_433_ESP::resetReceiver() {
-  for (unsigned int i = 0; i < RECEIVER_BUFFER_SIZE; i++) {
+  for (unsigned int i = 0; _pulseTrains && i < RECEIVER_BUFFER_SIZE; i++) {
     _pulseTrains[i].num_pulses = 0;
   }
   _avaiablePulseTrain = 0;
@@ -601,8 +602,17 @@ int16_t rtl_433_ESP::setBandwidthReg(uint8_t mdmcfg4Val) {
  * @brief watch for completed signals being received, and pass to decoder logic
  * 
  */
+// LINKRA: with RMT capture the GPIO-ISR train buffers are never used; free the
+// ~19 KB of internal RAM (review 02 B12). loop()/resetReceiver() tolerate null.
+void rtl_433_ESP::releaseIsrBuffers() {
+  if (!externalCapture || !_pulseTrains) return;
+  pulse_data_t* p = (pulse_data_t*)_pulseTrains;
+  _pulseTrains = nullptr;
+  heap_caps_free(p);
+}
+
 void rtl_433_ESP::loop() {
-  if (_enabledReceiver) {
+  if (_enabledReceiver && _pulseTrains) {
 #if defined(RF_CC1101) && defined(DEAF_WORKAROUND)
     // workaround for a deaf CC1101, see issue #16
     if (millis() - _deafWorkaround > 3600000) // restart receiver every hour
@@ -816,7 +826,7 @@ void rtl_433_ESP::rtl_433_ReceiverTask(void* pvParameters) {
                 _noiseCount, OokFixedThreshold);
 #    endif
             int state = radio.setOokFixedOrFloorThreshold(++OokFixedThreshold);
-            RADIOLIB_STATE(state, "OokFixedThreshold");
+            if (state != RADIOLIB_ERR_NONE) logprintfLn(LOG_ERR, "OokFixedThreshold failed, code: %d", state);  // LINKRA: task must not return
 #  endif
 #endif
             _noiseCount = 0;

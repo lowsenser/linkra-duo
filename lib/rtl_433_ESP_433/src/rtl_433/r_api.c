@@ -557,8 +557,11 @@ static int linkra_gate(const r_device* d) {
       lo = 0.5f * s; hi = 2.5f * s; break;
     default: return 1;                               // OSV1, NRZS, ...: always run
   }
+  // 15 % of the train's durations, but at most 32: in long noise trains a real
+  // packet would otherwise need hundreds of hits and be skipped (review 03 M2).
   int need = linkra_dur_n * 15 / 100;
   if (need < 6) need = 6;
+  if (need > 32) need = 32;
   return linkra_count_in((int)lo, (int)(hi + 0.5f)) >= need;
 }
 

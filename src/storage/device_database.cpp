@@ -3,6 +3,7 @@
 #include <LittleFS.h>
 #include <set>
 #include <string>
+#include <vector>
 #include <ArduinoJson.h>
 
 // LittleFS default mount point on ESP32 Arduino
@@ -11,6 +12,15 @@ const char* DeviceDatabase::DB_PATH = "/littlefs/devices.db";
 DeviceDatabase& DeviceDatabase::getInstance() {
     static DeviceDatabase instance;
     return instance;
+}
+
+// Never destroy user data on a generic error (review 06 M9): move the file aside
+// so it can be rescued, then start with an empty database.
+static void quarantineDb(const char* why) {
+    Serial.printf("[DB] Datenbank wird beiseitegelegt (%s): /devices_broken.db\n", why);
+    LittleFS.remove("/devices_broken.db");
+    if (!LittleFS.rename("/devices.db", "/devices_broken.db")) LittleFS.remove("/devices.db");
+    LittleFS.remove("/devices.db-journal");
 }
 
 bool DeviceDatabase::begin() {
@@ -26,6 +36,18 @@ bool DeviceDatabase::begin() {
     Serial.println("[DB] Initializing SQLite...");
     sqlite3_initialize();
     
+    // Leftover SQLite temp files (VFS before 2026-11-25 could not delete them)
+    {
+        File root = LittleFS.open("/");
+        std::vector<String> junk;
+        for (File f = root.openNextFile(); f; f = root.openNextFile()) {
+            const String n = f.name();
+            if (n.startsWith("sqltmp_") || n.startsWith("tmp_t")) junk.push_back("/" + n);
+        }
+        for (const auto& n : junk) LittleFS.remove(n);
+        if (!junk.empty()) Serial.printf("[DB] %u alte Temp-Dateien entfernt\n", (unsigned)junk.size());
+    }
+
     // Remove leftover WAL/SHM files from old WAL journal mode — 
     // LittleFS doesn't handle them correctly, causing stale reads
     if (LittleFS.exists("/devices.db-wal")) {
@@ -41,10 +63,9 @@ bool DeviceDatabase::begin() {
     if (rc != SQLITE_OK) {
         Serial.printf("[DB] Failed to open database: %s\n", sqlite3_errmsg(db));
         // Try to recover: delete corrupt DB and retry
-        Serial.println("[DB] Attempting recovery — deleting corrupt DB...");
         sqlite3_close(db);
         db = nullptr;
-        LittleFS.remove("/devices.db");
+        quarantineDb("lässt sich nicht öffnen");
         rc = sqlite3_open(DB_PATH, &db);
         if (rc != SQLITE_OK) {
             Serial.printf("[DB] Recovery failed: %s\n", sqlite3_errmsg(db));
@@ -83,9 +104,12 @@ bool DeviceDatabase::begin() {
     // Verify schema: check that matter columns actually exist
     // (ALTER TABLE may silently fail on some ESP32 SQLite builds)
     if (!verifyMatterColumns()) {
-        Serial.println("[DB] ✗ Matter columns missing after migration — recreating table...");
-        // Drop old table and recreate with full schema
-        execSQL("DROP TABLE IF EXISTS rf_devices;");
+        Serial.println("[DB] ✗ Spalten fehlen nach der Migration – Datei wird beiseitegelegt");
+        sqlite3_close(db);
+        db = nullptr;
+        quarantineDb("Schema unvollständig");
+        if (sqlite3_open(DB_PATH, &db) != SQLITE_OK) return false;
+        execSQL("PRAGMA journal_mode=PERSIST"); execSQL("PRAGMA synchronous=NORMAL"); execSQL("PRAGMA temp_store=MEMORY");
         if (!createTables()) {
             Serial.println("[DB] ✗ Failed to recreate table!");
             sqlite3_close(db);
@@ -118,12 +142,11 @@ bool DeviceDatabase::begin() {
         }
     }
     if (!testOk) {
-        Serial.println("[DB] ✗ Self-test FAILED — deleting corrupt DB and retrying...");
+        Serial.println("[DB] ✗ Selbsttest fehlgeschlagen – Datei wird beiseitegelegt, neuer Versuch");
         sqlite3_close(db);
         db = nullptr;
         initialized = false;
-        LittleFS.remove("/devices.db");
-        LittleFS.remove("/devices.db-journal");
+        quarantineDb("Selbsttest fehlgeschlagen");
         // Recursive retry (once)
         static bool retried = false;
         if (!retried) {

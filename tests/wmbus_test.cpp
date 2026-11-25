@@ -179,7 +179,45 @@ static void fuzz(unsigned seed, int runs, size_t& okRandom, size_t& okWrapped) {
     }
 }
 
+// ELL (8C) + AFL (90) + long transport header (72, mode 7): a radio module that
+// relays an encrypted meter (structure as seen from Techem modules; IDs invented).
+static void testLayers() {
+    std::vector<uint8_t> ll = {0, 0x44, 0x68, 0x50, 0x78, 0x56, 0x34, 0x12, 0x59, 0x37,   // TCH 12345678
+        0x8C, 0x20, 0x16,                                                                   // ELL I: CC ACC
+        0x90, 0x0F, 0x00, 0x2C, 0x25, 0xA9, 0x25, 0x12, 0x00,                               // AFL: FCL MCL MCR
+        0xE1, 0xCE, 0x34, 0xDC, 0x02, 0x74, 0x9E, 0x8D,                                     //      MAC (8, AT=5)
+        0x72, 0x21, 0x43, 0x65, 0x87, 0xA8, 0x5C, 0xFE, 0x07,                               // TPL: meter 87654321 WEH
+        0xF9, 0x00, 0x20, 0x07, 0x10};                                                      //      ACC ST CW(mode 7, 2 blocks) CFE
+    for (int i = 0; i < 32; i++) ll.push_back((uint8_t)(i * 37));                           // encrypted payload
+    ll[0] = (uint8_t)(ll.size() - 1);
+    Frame f = dec(c1FrameA(ll));
+    CHECK(f.ok);
+    CHECK(f.manufacturer == "TCH" && f.id == "12345678");              // transmitter stays the identity
+    CHECK(f.hasEll && f.ellCc == 0x20 && f.ellAcc == 0x16);
+    CHECK(f.hasAfl && f.aflMcl == 0x25 && f.aflMcr == 0x001225A9 && f.aflMac.size() == 8 && f.aflMac[0] == 0xE1);
+    CHECK(f.hasMeter && f.meterId == "87654321" && f.meterManufacturer == "WEH" && f.meterType == 0x07);
+    CHECK(f.ci == 0x72 && f.encryption == 7 && f.encBlocks == 2);
+    CHECK(f.payloadOffset == ll.size() - 32);
+    CHECK(f.records.empty());
+    const std::string js = toJson(f, -60, 40);
+    CHECK(js.find("\"meter_id\":\"87654321\"") != std::string::npos);
+    CHECK(js.find("\"afl_mcr\":1189289") != std::string::npos);
+    CHECK(js.find("Mode 7") != std::string::npos);
+    // short header after ELL, unencrypted -> records are parsed
+    std::vector<uint8_t> s2 = {0, 0x44, 0x68, 0x50, 0x78, 0x56, 0x34, 0x12, 0x59, 0x37, 0x8C, 0x20, 0x16,
+                               0x7A, 0x01, 0x00, 0x00, 0x00, 0x04, 0x13, 0x10, 0x27, 0x00, 0x00};
+    s2[0] = (uint8_t)(s2.size() - 1);
+    Frame g = dec(c1FrameA(s2));
+    CHECK(g.ok && g.hasEll && g.ci == 0x7A && g.encryption == 0 && !g.records.empty());
+    // invalid manufacturer bits never produce characters outside A..Z
+    std::vector<uint8_t> s3 = {0, 0x44, 0xFF, 0xFF, 0x78, 0x56, 0x34, 0x12, 0x01, 0x07, 0x78};
+    s3[0] = (uint8_t)(s3.size() - 1);
+    Frame h = dec(c1FrameA(s3));
+    CHECK(h.ok && h.manufacturer.find_first_not_of("ABCDEFGHIJKLMNOPQRSTUVWXYZ?") == std::string::npos);
+}
+
 int main() {
+    testLayers();
     // CRC-16/EN-13757 catalogue check value
     assert(crc16((const uint8_t*)"123456789", 9) == 0xC2B7);
     // every 3-of-6 symbol roundtrips

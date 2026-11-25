@@ -75,6 +75,11 @@ static const RxProfile RX_PROFILES[] = {
     // Somfy RTS remotes and sun/wind sensors, some gate openers (433.42 MHz)
     {"ook433-42", false, RxMod::OOK, 433.42f, 3.79f, 0, 203, 0, 10000, false,
      "OOK 433.42 MHz, 203 kHz: Somfy RTS, Rollladen-/Torsender", 0xC7, 0x40, 0x93},
+    // Wireless M-Bus with the reference register set of culfw/rtl-wmbus/TI DN022
+    // (IF 203 kHz, 103 kBaud, 38 kHz deviation, 15/16 sync + carrier sense).
+    // Pin only, for an A/B test against "wmbus-t1c1" (review P3: CRC rate).
+    {"wmbus-ref", true, RxMod::WMBUS, 868.95f, 103.0f, 38.0f, 325, 0, 0, false,
+     "TEST: wM-Bus mit Referenz-Registern (culfw/TI) für den Vergleich", 0x43, 0x09, 0xB5, true, 0xB6, 0x08},
 };
 
 static constexpr int RX_PROFILE_COUNT = sizeof(RX_PROFILES) / sizeof(RX_PROFILES[0]);

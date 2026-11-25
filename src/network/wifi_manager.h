@@ -56,6 +56,7 @@ public:
 
     // Zeit: NTP wird bei jedem GOT_IP gestartet; true nach der ersten Synchronisation.
     static void startTimeSync();
+    static String setupApPassword();   // WPA2 password of the setup hotspot (NVS, generated once)
     static bool isTimeSynced();
     
 private:

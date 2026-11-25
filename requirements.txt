@@ -5,3 +5,5 @@
 # esptool: Firmware flashen (docs/FLASHING.md); pyserial: serieller Monitor/esptool.
 esptool==5.1.0
 pyserial==3.5
+# littlefs-python: einmalige Umstellung auf OTA-Partitionen (scripts/migrate_partitions.py).
+littlefs-python==0.17.0

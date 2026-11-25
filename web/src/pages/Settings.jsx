@@ -76,6 +76,15 @@ function Look() {
   )
 }
 
+function SecretText({ value }) {
+  const [show, setShow] = useState(false)
+  return (
+    <button type="button" class="font-mono text-xs hover:text-accent" aria-label={show ? 'Passwort verbergen' : 'Passwort anzeigen'} onClick={() => setShow(!show)}>
+      {show ? value : '•••••••••••• (anzeigen)'}
+    </button>
+  )
+}
+
 function WifiSettings() {
   const w = wifi.value
   const [nets, setNets] = useState(null)
@@ -109,6 +118,15 @@ function WifiSettings() {
           ['Netzwerk', w?.ssid], ['IP-Adresse', w?.ip], ['Signal', w?.rssi != null && `${w.rssi} dBm · Kanal ${w.channel}`, w?.rssi < -80 ? 'text-warn' : ''],
           ['Gateway', w?.gateway], ['DNS', w?.dns], ['MAC', w?.mac], ['Hostname', w?.hostname],
         ]} />
+        {w?.setup_ap_password && (
+          <div class="mt-4 rounded-lg bg-raised px-3 py-2.5">
+            <div class="label mb-1">Setup-Hotspot (falls das WLAN nicht erreichbar ist)</div>
+            <KV rows={[
+              ['Name', <span class="font-mono text-xs">{w.setup_ap_ssid}</span>],
+              ['Passwort', <SecretText value={w.setup_ap_password} />],
+            ]} />
+          </div>
+        )}
         <button class="btn-danger mt-4" onClick={reset}><RotateCcw class="w-4 h-4" />Zugangsdaten zurücksetzen</button>
       </Card>
       <Card title="Netzwerk wechseln" icon={Search} right={<button class="btn btn-sm" disabled={scanning} onClick={scan}>{scanning ? 'Suche …' : 'Suchen'}</button>}>

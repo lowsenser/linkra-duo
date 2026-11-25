@@ -135,4 +135,5 @@ r_device const siemens_5wy72xx_car_remote = {
         .reset_limit = 10000,
         .decode_fn   = &siemens_5wy72xx_car_remote_decode,
         .fields      = output_fields,
+        .disabled    = 1, // LINKRA: US-only frequency (315/345/915 MHz), never received here (review 03)
 };

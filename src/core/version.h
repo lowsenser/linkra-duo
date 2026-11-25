@@ -7,4 +7,6 @@
 // PCB hardware.
 // 0.6.0-beta (2026-11-24): ESP32-C6 / Matter removed; Home Assistant via MQTT with
 // auto-discovery (only devices released by the user).
-#define LINKRA_FW_VERSION "0.6.0-beta"
+// 0.7.0-beta (2026-11-25): OTA partitions with rollback, WPA2 setup hotspot, P1 robustness
+// (pipeline task, supervisor, RMT watchdog), P3 wM-Bus layers/statistics, rtl_433 tuning.
+#define LINKRA_FW_VERSION "0.7.0-beta"

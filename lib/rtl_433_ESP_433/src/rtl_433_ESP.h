@@ -211,8 +211,8 @@
       } else {                                                            \
         logprintfLn(LOG_ERR, STR_MODULE " " FUNCTION " failed, code: %d", \
                     STATEVAR);                                            \
-        while (true)                                                      \
-          ;                                                               \
+        rtl_433_ESP::radioError = true;                                   \
+        return;                                                           \
       }                                                                   \
     }
 #else
@@ -221,8 +221,8 @@
       if ((STATEVAR) != RADIOLIB_ERR_NONE) {                              \
         logprintfLn(LOG_ERR, STR_MODULE " " FUNCTION " failed, code: %d", \
                     STATEVAR);                                            \
-        while (true)                                                      \
-          ;                                                               \
+        rtl_433_ESP::radioError = true;                                   \
+        return;                                                           \
       }                                                                   \
     }
 #endif
@@ -423,6 +423,10 @@ public:
   /** LINKRA: pulses are captured elsewhere (RMT, src/rf/rx433_rmt.cpp); this
    *  library then only drives the radio and the RSSI/noise-floor task. */
   static bool externalCapture;
+  // LINKRA: set when a radio call fails during init (RADIOLIB_STATE returns
+  // instead of hanging in while(true), so the device boots without the module).
+  static volatile bool radioError;
+  static void releaseIsrBuffers();
   /** LINKRA: peak RSSI of the 1-ms samples in [fromMs, toMs] (last ~2 s) */
   static int rssiPeak(uint32_t fromMs, uint32_t toMs);
   static volatile float tagFreqHz;

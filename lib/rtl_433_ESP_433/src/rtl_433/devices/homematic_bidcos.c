@@ -232,6 +232,6 @@ r_device const homematic_bidcos = {
         .long_width  = 100,  /* NRZ: bit width = pulse width */
         .reset_limit = 1500, /* gap indicating end of message */
         .decode_fn   = &homematic_bidcos_decode,
-        .disabled    = 0,
+        .disabled    = 1, // LINKRA: no de-whitening and no CRC yet -> phantom devices from noise (review 03 M5)
         .fields      = output_fields,
 };

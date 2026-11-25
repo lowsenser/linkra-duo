@@ -1,6 +1,7 @@
 #include "wmbus.h"
 #include <stdio.h>
 #include <math.h>
+#include <cmath>
 #include <string.h>
 
 namespace wmbus {
@@ -73,23 +74,24 @@ size_t expectedRawLength(const uint8_t* head, size_t n, Mode& mode) {
     return (len * 3 + 1) / 2;
 }
 
-static bool stripCrcA(const std::vector<uint8_t>& in, std::vector<uint8_t>& out, std::string& err) {
+static bool stripCrcA(const std::vector<uint8_t>& in, std::vector<uint8_t>& out, std::string& err, int& badBlock) {
     if (in.empty()) { err = "zu kurz"; return false; }
     const size_t L = in[0];
     size_t pos = 0, dataLeft = L + 1;
     bool first = true;
+    int block = 0;
     while (dataLeft > 0) {
         const size_t blk = first ? 10 : (dataLeft < 16 ? dataLeft : 16);
         if (pos + blk + 2 > in.size()) { err = "zu kurz"; return false; }
         const uint16_t want = (uint16_t)in[pos + blk] << 8 | in[pos + blk + 1];
-        if (crc16(&in[pos], blk) != want) { err = "CRC-Fehler Block " + std::to_string(out.size() / 16); return false; }
+        if (crc16(&in[pos], blk) != want) { badBlock = block; err = "CRC-Fehler Block " + std::to_string(block); return false; }
         out.insert(out.end(), in.begin() + pos, in.begin() + pos + blk);
-        pos += blk + 2; dataLeft -= blk; first = false;
+        pos += blk + 2; dataLeft -= blk; first = false; block++;
     }
     return true;
 }
 
-static bool stripCrcB(const std::vector<uint8_t>& in, std::vector<uint8_t>& out, std::string& err) {
+static bool stripCrcB(const std::vector<uint8_t>& in, std::vector<uint8_t>& out, std::string& err, int& badBlock) {
     if (in.empty()) { err = "zu kurz"; return false; }
     const size_t total = (size_t)in[0] + 1;
     // Block 1 = up to 126 data bytes + CRC, block 2 starts at 128 and needs >= 1 data byte.
@@ -102,10 +104,11 @@ static bool stripCrcB(const std::vector<uint8_t>& in, std::vector<uint8_t>& out,
         return crc16(&in[start], dataLen) == want;
     };
     if (total <= 128) {
-        if (!blockOk(0, total - 2)) { err = "CRC-Fehler"; return false; }
+        if (!blockOk(0, total - 2)) { badBlock = 0; err = "CRC-Fehler Block 0"; return false; }
         out.assign(in.begin(), in.begin() + total - 2);
     } else {
-        if (!blockOk(0, 126) || !blockOk(128, total - 130)) { err = "CRC-Fehler"; return false; }
+        if (!blockOk(0, 126)) { badBlock = 0; err = "CRC-Fehler Block 0"; return false; }
+        if (!blockOk(128, total - 130)) { badBlock = 1; err = "CRC-Fehler Block 1"; return false; }
         out.assign(in.begin(), in.begin() + 126);
         out.insert(out.end(), in.begin() + 128, in.begin() + total - 2);
     }
@@ -290,12 +293,28 @@ static bool decodeTechem(Frame& f, size_t pos) {
     return false;
 }
 
+// Manufacturer FLAG code; characters outside A..Z become '?' (keeps the JSON valid).
+static std::string flagCode(uint16_t m) {
+    std::string out;
+    for (int sh : {10, 5, 0}) {
+        const int c = ((m >> sh) & 0x1F) + 64;
+        out += (c >= 'A' && c <= 'Z') ? (char)c : '?';
+    }
+    return out;
+}
+
+static std::string bcdId(const uint8_t* p) {   // 4 bytes, little endian BCD
+    char id[12];
+    snprintf(id, sizeof id, "%02X%02X%02X%02X", p[3], p[2], p[1], p[0]);
+    return id;
+}
+
 Frame decode(const uint8_t* raw, size_t n) {
     Frame f;
     Mode mode;
     const size_t want = expectedRawLength(raw, n, mode);
-    if (!want) { f.error = "kein gültiger Rahmenanfang"; return f; }
-    if (n < want) { f.error = "unvollständig"; return f; }
+    if (!want) { f.error = "kein gültiger Rahmenanfang"; f.errKind = ErrKind::Start; return f; }
+    if (n < want) { f.error = "unvollständig"; f.errKind = ErrKind::Incomplete; return f; }
     f.mode = mode;
     std::vector<uint8_t> bytes;
     if (mode == Mode::T1) {
@@ -303,47 +322,97 @@ Frame decode(const uint8_t* raw, size_t n) {
         for (size_t i = 0; i < nBytes; i++) {
             const int hi = decode3of6Symbol((uint8_t)symbolAt(raw, n, 2 * i));
             const int lo = decode3of6Symbol((uint8_t)symbolAt(raw, n, 2 * i + 1));
-            if (hi < 0 || lo < 0) { f.error = "3-aus-6-Fehler bei Byte " + std::to_string(i); return f; }
+            if (hi < 0 || lo < 0) {
+                f.error = "3-aus-6-Fehler bei Byte " + std::to_string(i);
+                f.errKind = ErrKind::Symbol; f.errAt = (int)i; return f;
+            }
             bytes.push_back((uint8_t)(hi << 4 | lo));
         }
-        if (!stripCrcA(bytes, f.data, f.error)) return f;
+        if (!stripCrcA(bytes, f.data, f.error, f.errAt)) { f.errKind = ErrKind::Crc; return f; }
     } else {
         bytes.assign(raw + 2, raw + want);
-        if (!(mode == Mode::C1A ? stripCrcA(bytes, f.data, f.error) : stripCrcB(bytes, f.data, f.error))) return f;
+        if (!(mode == Mode::C1A ? stripCrcA(bytes, f.data, f.error, f.errAt) : stripCrcB(bytes, f.data, f.error, f.errAt))) {
+            f.errKind = f.errAt >= 0 ? ErrKind::Crc : ErrKind::Length; return f;
+        }
     }
     const auto& d = f.data;
-    if (d.size() < 10) { f.error = "zu kurz"; return f; }
+    if (d.size() < 10) { f.error = "zu kurz"; f.errKind = ErrKind::Length; return f; }
     f.L = d[0]; f.C = d[1];
-    const uint16_t m = d[2] | d[3] << 8;
-    f.manufacturer = {(char)(((m >> 10) & 0x1F) + 64), (char)(((m >> 5) & 0x1F) + 64), (char)((m & 0x1F) + 64)};
-    char id[12]; snprintf(id, sizeof id, "%02X%02X%02X%02X", d[7], d[6], d[5], d[4]); f.id = id;
+    f.manufacturer = flagCode(d[2] | d[3] << 8);
+    f.id = bcdId(&d[4]);
     f.version = d[8]; f.type = d[9];
     f.ok = true;
-    if (d.size() < 11) return f;
     size_t pos = 10;
+    if (d.size() <= pos) return f;
     f.ci = d[pos++];
-    if (f.ci == 0x8C && d.size() > pos + 2) { pos += 2; f.ci = d[pos++]; }           // ELL I: CC ACC
-    else if (f.ci == 0x8D) { f.encryption = 100; return f; }                          // ELL II: AES encrypted
+
+    // --- Extended link layer (EN 13757-4) ---
+    if (f.ci >= 0x8C && f.ci <= 0x8F) {
+        const size_t ellLen = f.ci == 0x8C ? 2 : f.ci == 0x8D ? 8 : f.ci == 0x8E ? 10 : 16;
+        if (d.size() < pos + ellLen) { f.encryption = -1; return f; }
+        f.hasEll = true;
+        f.ellCc = d[pos]; f.ellAcc = d[pos + 1];
+        if (f.ci == 0x8D || f.ci == 0x8F) {
+            // session number: bits 29..31 = ENC (0 none, 1 AES-CTR); payload after SN + CRC
+            const size_t snAt = pos + (f.ci == 0x8D ? 2 : 10);
+            const uint32_t sn = d[snAt] | d[snAt + 1] << 8 | d[snAt + 2] << 16 | (uint32_t)d[snAt + 3] << 24;
+            if ((sn >> 29) & 0x07) { f.encryption = 100; f.payloadOffset = pos + ellLen; return f; }
+        }
+        pos += ellLen;
+        if (d.size() <= pos) return f;
+        f.ci = d[pos++];
+    }
+    // --- Authentication and fragmentation layer ---
+    if (f.ci == 0x90) {
+        if (d.size() <= pos) return f;
+        const size_t aflLen = d[pos];
+        const size_t end = pos + 1 + aflLen;
+        if (d.size() < end || aflLen < 2) { f.encryption = -1; return f; }
+        f.hasAfl = true;
+        size_t q = pos + 1;
+        f.aflFcl = d[q] | d[q + 1] << 8; q += 2;
+        // FCL (EN 13757-7): MCLP 0x2000, MLP 0x1000, MCRP 0x0800, MACP 0x0400, KIP 0x0200;
+        // field order: FCL MCL KI MCR MAC ML. MAC length from the MCL's AT bits.
+        const bool mclp = f.aflFcl & 0x2000, kip = f.aflFcl & 0x0200, mcrp = f.aflFcl & 0x0800, macp = f.aflFcl & 0x0400;
+        if (mclp && q < end) f.aflMcl = d[q++];
+        if (kip && q + 2 <= end) { f.aflKi = d[q] | d[q + 1] << 8; q += 2; }
+        if (mcrp && q + 4 <= end) { f.aflMcr = d[q] | d[q + 1] << 8 | d[q + 2] << 16 | (uint32_t)d[q + 3] << 24; q += 4; }
+        if (macp) {
+            static const uint8_t kMacLen[16] = {0, 0, 0, 0, 4, 8, 12, 16, 0, 0, 0, 0, 0, 0, 0, 0};
+            size_t macLen = kMacLen[f.aflMcl & 0x0F];
+            if (!macLen || q + macLen > end) macLen = end - q;
+            f.aflMac.assign(d.begin() + q, d.begin() + q + macLen);
+        }
+        pos = end;
+        if (d.size() <= pos) return f;
+        f.ci = d[pos++];
+    }
+    // --- Transport layer ---
     if (f.ci == 0x7A && d.size() >= pos + 4) {
         f.accessNo = d[pos]; f.status = d[pos + 1];
         const uint16_t cfg = d[pos + 2] | d[pos + 3] << 8;
-        f.encryption = (cfg >> 8) & 0x1F; pos += 4;
+        f.encryption = (cfg >> 8) & 0x1F; f.encBlocks = (cfg >> 4) & 0x0F; pos += 4;
+        if (f.encryption == 7 && d.size() > pos) pos++;          // mode 7: config field extension
     } else if (f.ci == 0x72 && d.size() >= pos + 12) {
-        char mid[12]; snprintf(mid, sizeof mid, "%02X%02X%02X%02X", d[pos + 3], d[pos + 2], d[pos + 1], d[pos]); f.id = mid;
-        const uint16_t mm = d[pos + 4] | d[pos + 5] << 8;
-        f.manufacturer = {(char)(((mm >> 10) & 0x1F) + 64), (char)(((mm >> 5) & 0x1F) + 64), (char)((mm & 0x1F) + 64)};
-        f.version = d[pos + 6]; f.type = d[pos + 7];
+        f.hasMeter = true;
+        f.meterId = bcdId(&d[pos]);
+        f.meterManufacturer = flagCode(d[pos + 4] | d[pos + 5] << 8);
+        f.meterVersion = d[pos + 6]; f.meterType = d[pos + 7];
         f.accessNo = d[pos + 8]; f.status = d[pos + 9];
         const uint16_t cfg = d[pos + 10] | d[pos + 11] << 8;
-        f.encryption = (cfg >> 8) & 0x1F; pos += 12;
-    } else if (f.ci == 0x78) { f.encryption = 0; }
-    else {
+        f.encryption = (cfg >> 8) & 0x1F; f.encBlocks = (cfg >> 4) & 0x0F; pos += 12;
+        if (f.encryption == 7 && d.size() > pos) pos++;
+    } else if (f.ci == 0x78) {
+        f.encryption = 0;
+    } else {
         // Techem: proprietary but unencrypted payload right after the CI field
         if (f.manufacturer == "TCH" && f.ci >= 0xA0 && f.ci <= 0xA2 && decodeTechem(f, pos)) {
             f.encryption = 0; f.payloadParsed = true;
         }
+        f.payloadOffset = pos;
         return f;   // other manufacturer specific / unsupported CI: header only
     }
+    f.payloadOffset = pos;
     if (f.encryption == 0) { parseRecords(f, pos); f.payloadParsed = true; }
     return f;
 }
@@ -369,7 +438,7 @@ const char* modeName(Mode m) {
 static std::string encName(int e) {
     switch (e) {
         case -1: return "unbekannt (herstellerspezifisch)"; case 0: return "keine"; case 5: return "AES-128-CBC (Mode 5)";
-        case 7: return "AES-128-CBC (Mode 7)"; case 13: return "TLS (Mode 13)"; case 100: return "AES (ELL)";
+        case 7: return "AES-128-CBC (Mode 7, OMS)"; case 13: return "TLS (Mode 13)"; case 100: return "AES (ELL)";
         default: return "Mode " + std::to_string(e);
     }
 }
@@ -380,15 +449,22 @@ std::string toJson(const Frame& f, int rssi, int lqi) {
     snprintf(b, sizeof b,
              "{\"model\":\"wMBus-%s\",\"id\":\"%s\",\"manufacturer\":\"%s\",\"mode\":\"%s\",\"C\":\"0x%02x\","
              "\"version\":%u,\"device_type\":%u,\"device_type_name\":\"%s\",\"ci\":\"0x%02x\",\"access_no\":%u,"
-             "\"encryption\":\"%s\",\"mic\":\"CRC\",\"rssi\":%d,\"lqi\":%d",
+             "\"encryption\":\"%s\",\"crc\":true,\"rssi\":%d,\"lqi\":%d",
              f.manufacturer.c_str(), f.id.c_str(), f.manufacturer.c_str(), modeName(f.mode), f.C, f.version, f.type,
              f.media.empty() ? deviceTypeName(f.type) : f.media.c_str(), f.ci, f.accessNo, encName(f.encryption).c_str(), rssi, lqi);
     s = b;
+    if (f.hasMeter) {
+        snprintf(b, sizeof b, ",\"meter_manufacturer\":\"%s\",\"meter_id\":\"%s\",\"meter_type\":%u,\"meter_type_name\":\"%s\"",
+                 f.meterManufacturer.c_str(), f.meterId.c_str(), f.meterType, deviceTypeName(f.meterType));
+        s += b;
+    }
+    if (f.hasEll) s += ",\"ell\":true";
+    if (f.hasAfl) { snprintf(b, sizeof b, ",\"afl_mcr\":%lu", (unsigned long)f.aflMcr); s += b; }
     if (!f.driver.empty()) s += ",\"driver\":\"" + f.driver + "\",\"media\":\"" + f.media + "\"";
     for (const Record& r : f.records) {
         if (!r.text.empty()) { s += ",\"" + r.name + "\":\"" + r.text + "\""; continue; }
-        if (isnan(r.value)) continue;
-        snprintf(b, sizeof b, ",\"%s\":%.6g", r.name.c_str(), r.value);
+        if (!std::isfinite(r.value)) continue;     // NaN/Inf are not valid JSON
+        snprintf(b, sizeof b, ",\"%s\":%.10g", r.name.c_str(), r.value);   // %.6g cut meter readings
         s += b;
     }
     s += ",\"raw\":\"" + hex(f.data.data(), f.data.size()) + "\"}";

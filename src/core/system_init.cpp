@@ -155,7 +155,7 @@ void SystemInit::initWiFi() {
 #endif
     esp_wifi_set_country_code(LINKRA_WIFI_COUNTRY, true);
     WiFi.setSleep(false);
-    WiFi.setAutoReconnect(true);
+    WiFi.setAutoReconnect(false);   // WiFiManager reconnects with backoff
     WiFi.begin(WIFI_SSID, WIFI_PASS);
     
     // Warte auf Verbindung (max 15 Sekunden)

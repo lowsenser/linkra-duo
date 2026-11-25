@@ -84,6 +84,7 @@ struct ESP32File {
   FILE *fp;                       /* File descriptor */
 
   char *aBuffer;                  /* Pointer to malloc'd buffer */
+  char zTmp[101];                 /* LINKRA: temp file path, deleted on close */
   int nBuffer;                    /* Valid bytes of data in zBuffer */
   sqlite3_int64 iBufferOfst;      /* Offset in file of zBuffer[0] */
 };
@@ -146,6 +147,9 @@ static int ESP32Close(sqlite3_file *pFile){
   rc = ESP32FlushBuffer(p);
   sqlite3_free(p->aBuffer);
   fclose(p->fp);
+  // LINKRA: LittleFS cannot unlink an open file, so temp files were left behind
+  // (sqltmp_N, tmp_t*). Remove them once closed.
+  if (p->zTmp[0]) { unlink(p->zTmp); p->zTmp[0] = 0; }
   //Serial.println("fn:Close:Success");
   return rc;
 }
@@ -454,7 +458,9 @@ static int ESP32Open(
     static uint32_t tmpCounter = 0;
     char tName[MAXPATHNAME + 1];
     snprintf(tName, sizeof(tName), "%s/sqltmp_%lu", dbrootpath, (unsigned long)++tmpCounter);
+    unlink(tName);                     // stale file from before a reset
     p->fp = fopen(tName, mode);
+    if (p->fp) snprintf(p->zTmp, sizeof(p->zTmp), "%s", tName);
     //https://stackoverflow.com/questions/64424287/how-to-delete-a-file-in-c-using-a-file-descriptor
     //for temp file, then no need to handle in esp32close
     unlink(tName);

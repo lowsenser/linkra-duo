@@ -120,4 +120,5 @@ r_device const six_sc_two_car_remote = {
         .reset_limit = 10000,
         .decode_fn   = &six_sc_two_car_remote_decode,
         .fields      = output_fields,
+        .disabled    = 1, // LINKRA: US-only frequency (315/345/915 MHz), never received here (review 03)
 };

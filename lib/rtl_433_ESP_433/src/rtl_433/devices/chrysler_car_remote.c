@@ -159,4 +159,5 @@ r_device const chrysler_car_remote = {
         .tolerance   = 100,
         .decode_fn   = &chrysler_car_remote_decode,
         .fields      = output_fields,
+        .disabled    = 1, // LINKRA: US-only frequency (315/345/915 MHz), never received here (review 03)
 };

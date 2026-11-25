@@ -42,3 +42,6 @@ Thumbs.db
 
 # Claude Code (lokale Arbeitskopien der Agenten)
 .claude/
+
+# Migrations-/Hilfsdateien
+build/
